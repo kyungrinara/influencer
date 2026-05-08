@@ -438,8 +438,7 @@ select.fc { cursor:pointer; }
       <button class="f-btn f-nv on" id="ship-nv" onclick="togglePlatF('ship','네이버 블로그',this)">네이버</button>
       <button class="f-btn f-ts on" id="ship-ts" onclick="togglePlatF('ship','티스토리',this)">티스토리</button>
     </div>
-    <button class="btn-s ml" onclick="downloadShipTemplate()" style="font-size:12px;">📥 양식 다운로드</button>
-    <button class="btn-s ml" onclick="renderShipForm()" style="font-size:12px;">📋 발송요청서 작성</button>
+    <button class="btn-s ml" onclick="downloadShipTemplate()" style="font-size:12px;">📥 양식 다운로드</button><button class="btn-s" onclick="renderShipForm()" style="font-size:12px;margin-left:4px;">📋 발송요청서 작성</button>
   </div>
   <div class="card">
     <div class="card-header">
@@ -473,14 +472,19 @@ select.fc { cursor:pointer; }
 
       <!-- 발송요청서 수량 정보 -->
       <div style="flex:1;min-width:260px;">
-        <div style="font-weight:600;font-size:13px;margin-bottom:10px;color:var(--ink2);">📄 발송요청서 시트 — 수량 입력값</div>
+        <div style="font-weight:600;font-size:13px;margin-bottom:10px;color:var(--ink2);">📄 발송요청서 시트 — 입력값</div>
+        <div style="margin-bottom:10px;padding:8px 12px;background:var(--paper2);border:1px solid var(--line);border-radius:6px;font-size:12px;">
+          <span style="color:var(--ink3);margin-right:8px;">C12 이벤트명:</span>
+          <span id="ship-form-event" style="font-weight:600;color:var(--ink1);"></span>
+        </div>
+        <div style="font-size:11px;color:var(--ink3);margin-bottom:6px;">🔴 빨간 테두리 = 엑셀에 직접 입력할 셀</div>
         <table style="width:100%;border-collapse:collapse;font-size:12px;">
           <thead>
             <tr style="background:var(--paper3);">
               <th style="padding:6px 8px;text-align:left;border:1px solid var(--line);">상품명</th>
               <th style="padding:6px 8px;text-align:right;border:1px solid var(--line);">소매가</th>
               <th style="padding:6px 8px;text-align:right;border:1px solid var(--line);">공급가(2%할인)</th>
-              <th style="padding:6px 8px;text-align:right;border:1px solid var(--line);">수량</th>
+              <th style="padding:6px 8px;text-align:right;border:2px solid var(--red);color:var(--red);">수량(I열)</th>
             </tr>
           </thead>
           <tbody id="ship-form-qty"></tbody>
@@ -489,8 +493,7 @@ select.fc { cursor:pointer; }
 
       <!-- 발송자 명단 -->
       <div style="flex:2;min-width:320px;">
-        <div style="font-weight:600;font-size:13px;margin-bottom:6px;color:var(--ink2);">👤 발송자 명단 시트 입력값
-          <button onclick="copyShipList()" class="btn-s ml" style="font-size:11px;">📎 전체 복사</button>
+        <div style="font-weight:600;font-size:13px;margin-bottom:6px;color:var(--ink2);">👤 발송자 명단 시트 입력값 <span style="display:inline-block;width:8px;"></span><button onclick="copyShipList()" class="btn-s" style="font-size:11px;margin-left:8px;">📎 전체 복사</button>
         </div>
         <div style="font-size:11px;color:var(--ink3);margin-bottom:6px;">A열(상품명) · B열(전화번호) — 복사 후 발송자 명단 A2셀에 붙여넣기</div>
         <textarea id="ship-form-list" readonly
@@ -2381,22 +2384,28 @@ function renderShipForm() {
     for (let i = 0; i < n50;  i++) { q50++;  entries.push(['신세계 이마트 50,000원 상품권 교환권',  ph]); }
   });
 
+  // 이벤트명 월 표시
+  const mon = new Date().getMonth() + 1;
+  const eventName = '경리나라_파워블로거_' + mon + '월';
+  document.getElementById('ship-form-event').textContent = eventName;
+
   // 수량 테이블
   const r100price = 100000, r50price = 50000;
   const s100 = Math.round(r100price * 0.98), s50 = Math.round(r50price * 0.98);
   const fmt  = n => n.toLocaleString('ko-KR');
+  const redCell = 'padding:6px 8px;border:2px solid var(--red);text-align:right;font-weight:700;color:var(--red);';
   document.getElementById('ship-form-qty').innerHTML = `
     <tr>
       <td style="padding:6px 8px;border:1px solid var(--line);">신세계 이마트100,000원 상품권 교환권</td>
       <td style="padding:6px 8px;border:1px solid var(--line);text-align:right;">${fmt(r100price)}</td>
       <td style="padding:6px 8px;border:1px solid var(--line);text-align:right;">${fmt(s100)}</td>
-      <td style="padding:6px 8px;border:1px solid var(--line);text-align:right;font-weight:600;">${q100}</td>
+      <td style="${redCell}">${q100}</td>
     </tr>
     <tr>
       <td style="padding:6px 8px;border:1px solid var(--line);">신세계 이마트50,000원 상품권 교환권</td>
       <td style="padding:6px 8px;border:1px solid var(--line);text-align:right;">${fmt(r50price)}</td>
       <td style="padding:6px 8px;border:1px solid var(--line);text-align:right;">${fmt(s50)}</td>
-      <td style="padding:6px 8px;border:1px solid var(--line);text-align:right;font-weight:600;">${q50}</td>
+      <td style="${redCell}">${q50}</td>
     </tr>
   `;
 
