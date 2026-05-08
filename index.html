@@ -1,0 +1,2361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>경리나라 인플루언서</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<style>
+:root {
+  --ink:    #0F172A;
+  --ink2:   #334155;
+  --ink3:   #64748B;
+  --ink4:   #94A3B8;
+  --paper:  #FFFFFF;
+  --paper2: #F8FAFC;
+  --paper3: #F1F5F9;
+  --line:   #E2E8F0;
+  --line2:  #CBD5E1;
+
+  --blue:   #3182F6;  --blue-l: #EFF6FF;  --blue-d: #1D6DE5;
+  --green:  #059669;  --green-l:#ECFDF5;
+  --amber:  #D97706;  --amber-l:#FFFBEB;
+  --red:    #E05252;  --red-l:  #FFF5F5;
+  --purple: #7C3AED;  --purple-l:#F5F3FF;
+  --teal:   #0D9488;  --teal-l: #F0FDFA;
+
+  --nv-bg: #DBEAFE; --nv-c: #1D4ED8;
+  --ts-bg: #EDE9FE; --ts-c: #4C1D95;
+
+  --r-sm: 6px; --r: 12px; --r-lg: 16px; --r-xl: 20px;
+  --sh: 0 1px 3px rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04);
+  --sh-md: 0 4px 16px rgba(0,0,0,.07);
+  --sh-lg: 0 12px 40px rgba(0,0,0,.10);
+  --tr: 150ms ease;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Pretendard',sans-serif; background:var(--paper2); color:var(--ink); font-size:13px; line-height:1.5; }
+a { color:var(--blue); text-decoration:none; }
+button,input,select,textarea { font-family:inherit; font-size:13px; }
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--line2); border-radius:3px; }
+
+.hd {
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(0,0,0,.07);
+  padding:0 20px;
+  height:56px;
+  display:flex;
+  align-items:center;
+  gap:0;
+  position:sticky;
+  top:0;
+  z-index:100;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
+}
+.logo { display:flex; align-items:center; gap:10px; margin-right:20px; text-decoration:none; }
+.logo-mark { width:28px; height:28px; background:var(--blue); border-radius:var(--r-sm); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:#fff; }
+.logo-text { font-size:13px; font-weight:700; color:var(--ink); letter-spacing:-.3px; }
+.nav { display:flex; gap:2px; flex:1; }
+.nav-btn { padding:6px 14px; border-radius:var(--r-sm); color:var(--ink3); font-size:12px; font-weight:500; cursor:pointer; border:none; background:transparent; transition:var(--tr); white-space:nowrap; }
+.nav-btn:hover { background:var(--paper3); color:var(--ink); }
+.nav-btn.on { background:var(--blue-l); color:var(--blue); font-weight:600; }
+.nav-btn.bl-tab { color:var(--red); }
+.nav-btn.bl-tab.on { background:var(--red-l); color:var(--red); font-weight:600; }
+.hd-actions { margin-left:auto; display:flex; align-items:center; gap:8px; }
+.btn-add { padding:6px 14px; border-radius:var(--r); background:var(--blue); color:#fff; border:none; font-size:12px; font-weight:600; cursor:pointer; transition:var(--tr); display:flex; align-items:center; gap:6px; }
+.btn-add:hover { background:var(--blue-d); }
+
+.main { padding:20px; max-width:1600px; margin:0 auto; }
+.panel { display:none; }
+.panel.on { display:block; }
+
+/* ── 대시보드 ── */
+.dash-stat-box { text-align:center; padding:8px 14px; background:rgba(255,255,255,.18); border-radius:8px; border:1px solid rgba(255,255,255,.25); min-width:72px; }
+.dash-stat-box .dsv { font-size:20px; font-weight:700; font-family:'JetBrains Mono',monospace; color:#fff; }
+.dash-stat-box .dsl { font-size:10px; color:rgba(255,255,255,.7); margin-top:2px; }
+.dash-stat-box.v-green .dsv { color:#6EE7B7; }
+.dash-stat-box.v-amber .dsv { color:#FDE68A; }
+.dash-stat-box.v-red   .dsv { color:#FCA5A5; }
+.dash-urgent-row { display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:6px; border:1px solid; }
+.dash-week-card { display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:8px; border:1px solid var(--line); background:var(--paper2); cursor:pointer; transition:background .15s; }
+.dash-week-card:hover { background:var(--blue-l); }
+.dash-week-card.overdue { border-color:#FECACA; background:#FFF5F5; }
+.dash-week-card.today   { border-color:#FCA5A5; background:var(--red-l); }
+.dash-week-card.soon    { border-color:#FDE68A; background:var(--amber-l); }
+.dash-dl-date { min-width:46px; text-align:center; padding:5px 6px; border-radius:6px; background:var(--paper); border:1px solid var(--line2); font-family:'JetBrains Mono',monospace; }
+.dash-dl-date .dd { font-size:16px; font-weight:700; line-height:1; }
+.dash-dl-date .dm { font-size:9px; color:var(--ink3); margin-top:2px; }
+.overdue .dash-dl-date { background:var(--red-l); border-color:#FECACA; }
+.overdue .dash-dl-date .dd { color:var(--red); }
+.today .dash-dl-date { background:var(--red); border-color:var(--red); }
+.today .dash-dl-date .dd, .today .dash-dl-date .dm { color:#fff; }
+.soon .dash-dl-date { background:var(--amber-l); border-color:#FDE68A; }
+.soon .dash-dl-date .dd { color:var(--amber); }
+.dash-tl-card { border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--paper); cursor:pointer; transition:box-shadow .15s; }
+.dash-tl-card:hover { box-shadow:0 4px 12px rgba(0,0,0,.1); }
+.dash-tl-card.urgent-card { border-color:#FCA5A5; }
+.dash-tl-card.done-card { opacity:.65; }
+.dash-tl-head { padding:9px 13px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:7px; }
+.dash-tl-head.urgent-head { background:var(--red-l); }
+.dash-tl-head.done-head { background:var(--purple-l); }
+.dash-tl-nick { font-weight:700; font-size:12px; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dash-tl-steps { padding:8px 13px; }
+.dash-tl-step { display:flex; align-items:center; gap:7px; padding:3px 0; font-size:11px; }
+.dash-tl-dot { width:14px; height:14px; border-radius:50%; border:2px solid var(--line2); display:flex; align-items:center; justify-content:center; font-size:7px; font-weight:700; flex-shrink:0; }
+.dash-tl-dot.done    { background:var(--green); border-color:var(--green); color:#fff; }
+.dash-tl-dot.current { background:var(--blue);  border-color:var(--blue);  color:#fff; box-shadow:0 0 0 2px rgba(37,99,235,.2); }
+.dash-tl-dot.pending { background:var(--paper3); border-color:var(--line2); }
+.dash-tl-sname { flex:1; color:var(--ink2); }
+.dash-tl-sname.current { font-weight:700; color:var(--ink); }
+.dash-tl-sname.pending { color:var(--ink4); }
+.dash-tl-sdate { font-size:10px; color:var(--ink4); font-family:'JetBrains Mono',monospace; }
+.dash-tl-sdate.near { color:var(--amber); font-weight:600; }
+.dash-tl-sdate.over { color:var(--red); font-weight:600; }
+.dash-tl-foot { padding:7px 13px; border-top:1px solid var(--line); background:var(--paper2); display:flex; align-items:center; justify-content:space-between; }
+.inline-url { padding:4px 8px; border:1px solid transparent; border-radius:4px; background:transparent; font-size:11px; color:var(--ink); width:100%; cursor:text; font-family:inherit; }
+.inline-url::placeholder { color:var(--ink4); }
+.inline-url:hover { border-color:var(--line2); background:var(--paper2); }
+.inline-url:focus { border-color:var(--blue); background:var(--paper); outline:none; box-shadow:0 0 0 2px rgba(37,99,235,.1); }
+
+/* ── 3탭 상세 패널 ── */
+.sp-rd-tab { flex:1; padding:10px 6px; text-align:center; font-size:11px; font-weight:600; color:var(--ink3); border:none; background:transparent; cursor:pointer; border-bottom:2px solid transparent; transition:color .15s,border-color .15s; }
+.sp-rd-tab:hover { color:var(--ink); background:var(--paper3); }
+.sp-rd-tab.on { color:var(--blue); border-bottom-color:var(--blue); background:var(--paper); }
+.sp-rd-section { padding:14px 18px; border-bottom:1px solid var(--line); }
+.sp-rd-section:last-child { border-bottom:none; }
+.sp-rd-sec-title { font-size:10px; font-weight:700; color:var(--ink4); text-transform:uppercase; letter-spacing:.6px; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+.sp-rd-sec-title::after { content:''; flex:1; height:1px; background:var(--line); }
+.sp-rd-2col { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.sp-rd-field { margin-bottom:8px; }
+.sp-rd-field:last-child { margin-bottom:0; }
+.sp-rd-label { display:block; font-size:10px; font-weight:600; color:var(--ink4); margin-bottom:4px; }
+.sp-rd-input { width:100%; padding:7px 10px; border:1px solid var(--line2); border-radius:7px; background:var(--paper); color:var(--ink); font-size:12px; outline:none; transition:border-color .15s; font-family:inherit; }
+.sp-rd-input:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+.sp-rd-select { width:100%; padding:7px 10px; border:1px solid var(--line2); border-radius:7px; background:var(--paper); color:var(--ink); font-size:12px; cursor:pointer; outline:none; }
+.sp-rd-select:focus { border-color:var(--blue); }
+
+.stat-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; margin-bottom:16px; }
+.stat-card { background:var(--paper); border:1px solid var(--line); border-radius:var(--r-lg); padding:14px 16px; box-shadow:var(--sh); }
+.stat-label { font-size:10px; font-weight:600; color:var(--ink3); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+.stat-value { font-size:24px; font-weight:700; font-family:'JetBrains Mono',monospace; color:var(--ink); }
+.stat-value.v-red { color:var(--red); }
+.stat-value.v-green { color:var(--green); }
+.stat-value.v-amber { color:var(--amber); }
+
+.toolbar { display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.filter-group { display:flex; gap:4px; flex-wrap:wrap; }
+.f-btn { padding:4px 12px; border-radius:20px; border:1px solid var(--line); background:var(--paper); color:var(--ink3); font-size:11px; font-weight:500; cursor:pointer; transition:var(--tr); white-space:nowrap; }
+.f-btn:hover { background:var(--paper3); }
+.f-btn.on { border-color:transparent; }
+.f-all.on   { background:var(--ink);  color:#fff; }
+.f-nv.on    { background:var(--nv-bg); color:var(--nv-c); border-color:#BFDBFE; }
+.f-ts.on    { background:var(--ts-bg); color:var(--ts-c); border-color:#DDD6FE; }
+.f-bl.on    { background:var(--red-l); color:var(--red); border-color:#FECACA; }
+.f-ok.on    { background:var(--green-l); color:var(--green); border-color:#A7F3D0; }
+.f-s-contact.on  { background:#F0F9FF; color:#0C4A6E; border-color:#BAE6FD; }
+.f-s-wait.on     { background:var(--amber-l); color:var(--amber); border-color:#FDE68A; }
+.f-s-confirm.on  { background:var(--green-l); color:var(--green); border-color:#A7F3D0; }
+.f-s-guide.on    { background:var(--blue-l); color:var(--blue); border-color:#BFDBFE; }
+.f-s-post.on     { background:#ECFDF5; color:#064E3B; border-color:#6EE7B7; }
+.f-s-ship.on     { background:#FFF7ED; color:#7C2D12; border-color:#FED7AA; }
+.f-s-done.on     { background:var(--purple-l); color:var(--purple); border-color:#DDD6FE; }
+.f-s-reject.on   { background:var(--red-l); color:var(--red); border-color:#FECACA; }
+.vsep { width:1px; height:20px; background:var(--line); margin:0 2px; }
+.ml { margin-left:auto; }
+.search-input { padding:6px 12px; border:1px solid var(--line2); border-radius:var(--r); background:var(--paper); color:var(--ink); font-size:12px; outline:none; min-width:200px; transition:var(--tr); }
+.search-input:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+.cycle-sel { padding:5px 10px; border:1px solid var(--line2); border-radius:var(--r); background:var(--paper); color:var(--ink); font-size:12px; cursor:pointer; outline:none; }
+
+.card { background:var(--paper); border:1px solid var(--line); border-radius:var(--r-xl); overflow:hidden; box-shadow:var(--sh); }
+.card-header { padding:12px 18px; border-bottom:1px solid var(--line); background:var(--paper2); display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.card-title { font-size:13px; font-weight:600; }
+.card-count { font-size:11px; color:var(--ink3); }
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:12px; table-layout:fixed; }
+thead th { background:var(--paper2); color:var(--ink3); font-weight:600; font-size:10px; padding:9px 12px; text-align:left; white-space:nowrap; border-bottom:1px solid var(--line); letter-spacing:.5px; text-transform:uppercase; }
+tbody tr { border-bottom:1px solid var(--line); cursor:pointer; transition:background var(--tr); }
+tbody tr:hover { background:var(--blue-l); }
+tbody tr:last-child { border-bottom:none; }
+tbody tr.bl-row { background:#FFF8F8; }
+tbody tr.bl-row:hover { background:#FFF0F0; }
+td { padding:9px 12px; vertical-align:middle; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--ink2); }
+td.mono { font-family:'JetBrains Mono',monospace; font-size:11px; }
+td strong { color:var(--ink); font-weight:600; }
+.empty-row td { text-align:center; padding:40px; color:var(--ink4); }
+
+.badge { display:inline-flex; align-items:center; padding:2px 8px; border-radius:20px; font-size:10px; font-weight:600; white-space:nowrap; }
+.b-nv     { background:var(--nv-bg); color:var(--nv-c); }
+.b-ts     { background:var(--ts-bg); color:var(--ts-c); }
+.b-bl     { background:var(--red-l); color:var(--red); border:1px solid #FECACA; }
+.b-contact{ background:#F0F9FF; color:#0369A1; }
+.b-wait   { background:var(--amber-l); color:var(--amber); }
+.b-confirm{ background:var(--green-l); color:#065F46; }
+.b-guide  { background:var(--blue-l); color:var(--blue); }
+.b-post   { background:#ECFDF5; color:#064E3B; }
+.b-ship   { background:#FFF7ED; color:#7C2D12; }
+.b-done   { background:var(--purple-l); color:var(--purple); }
+.b-reject { background:var(--red-l); color:var(--red); }
+.b-black  { background:#FFF0F0; color:#991B1B; border:1px solid #FECACA; }
+
+.btn-p { padding:6px 14px; border-radius:var(--r); background:var(--blue); color:#fff; border:none; font-size:12px; font-weight:600; cursor:pointer; transition:var(--tr); }
+.btn-p:hover { background:var(--blue-d); }
+.btn-p:disabled { opacity:.5; cursor:not-allowed; }
+.btn-s { padding:6px 14px; border-radius:var(--r); background:var(--paper); color:var(--ink2); border:1px solid var(--line2); font-size:12px; cursor:pointer; transition:var(--tr); }
+.btn-s:hover { background:var(--paper3); }
+.btn-sm { padding:3px 9px; border-radius:var(--r-sm); background:var(--paper); color:var(--ink3); border:1px solid var(--line); font-size:11px; cursor:pointer; transition:var(--tr); }
+.btn-sm:hover { background:var(--paper3); }
+.btn-red { padding:3px 9px; border-radius:var(--r-sm); background:var(--red-l); color:var(--red); border:1px solid #FECACA; font-size:11px; cursor:pointer; transition:var(--tr); }
+.btn-red:hover { background:#FEE2E2; }
+.btn-green { padding:4px 10px; border-radius:var(--r-sm); background:var(--green-l); color:var(--green); border:1px solid #A7F3D0; font-size:11px; font-weight:600; cursor:pointer; }
+.btn-row { display:flex; gap:8px; margin-top:16px; }
+.btn-row .btn-p { flex:1; }
+.qs { padding:3px 7px; border:1px solid var(--line); border-radius:var(--r-sm); font-size:11px; background:var(--paper); color:var(--ink); cursor:pointer; outline:none; }
+.qs:focus { border-color:var(--blue); }
+
+.overlay { position:fixed; inset:0; background:rgba(15,23,42,.4); z-index:200; display:none; justify-content:flex-end; backdrop-filter:blur(2px); }
+.overlay.open { display:flex; }
+.side-panel { width:500px; max-width:100vw; height:100vh; background:var(--paper); overflow:hidden; box-shadow:var(--sh-lg); display:flex; flex-direction:column; }
+.sp-head { padding:14px 20px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; background:var(--paper); z-index:10; }
+.sp-title { font-size:15px; font-weight:700; }
+.sp-close { width:30px; height:30px; border:1px solid var(--line); border-radius:var(--r); background:var(--paper2); color:var(--ink3); cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:var(--tr); }
+.sp-close:hover { background:var(--paper3); }
+.sp-body { flex:1; overflow-y:auto; display:flex; flex-direction:column; }
+
+.fg { margin-bottom:14px; }
+.fl { display:block; font-size:11px; font-weight:600; color:var(--ink3); margin-bottom:5px; }
+.fl .req { color:var(--red); margin-left:2px; }
+.fc { width:100%; padding:8px 11px; border:1px solid var(--line2); border-radius:var(--r); background:var(--paper); color:var(--ink); font-size:12px; outline:none; transition:var(--tr); }
+.fc:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+.fc:read-only { background:var(--paper3); color:var(--ink3); }
+textarea.fc { resize:vertical; min-height:80px; line-height:1.6; }
+select.fc { cursor:pointer; }
+.fr2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.fr3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+
+.plat-group { display:flex; gap:8px; }
+.plat-btn { flex:1; padding:8px; border:1px solid var(--line2); border-radius:var(--r); background:var(--paper); color:var(--ink3); font-size:12px; cursor:pointer; text-align:center; font-weight:500; transition:var(--tr); }
+.plat-btn.nv { background:var(--nv-bg); color:var(--nv-c); border-color:#BFDBFE; }
+.plat-btn.ts { background:var(--ts-bg); color:var(--ts-c); border-color:#DDD6FE; }
+
+.info-box { background:var(--paper2); border:1px solid var(--line); border-radius:var(--r-lg); padding:14px; margin-bottom:14px; }
+.info-box.warn { background:var(--amber-l); border-color:#FDE68A; }
+.info-box.danger { background:var(--red-l); border-color:#FECACA; }
+.info-box .inf-name { font-size:14px; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+.info-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:12px; }
+.info-grid>div>span { color:var(--ink4); display:block; font-size:10px; margin-bottom:1px; }
+.hist-item { border-left:2px solid var(--line2); padding:8px 12px; margin-bottom:8px; border-radius:0 var(--r) var(--r) 0; background:var(--paper2); font-size:12px; }
+.hist-item.bl { border-color:var(--red); background:var(--red-l); }
+
+.divider { border:none; border-top:1px solid var(--line); margin:16px 0; }
+.sec-title { font-size:11px; font-weight:700; color:var(--ink3); margin-bottom:10px; text-transform:uppercase; letter-spacing:.5px; }
+.memo-box { background:#FAFAF7; border:1px solid #E8E4D4; border-radius:var(--r); padding:10px 12px; font-size:12px; color:var(--ink2); white-space:pre-wrap; line-height:1.6; margin-top:4px; }
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:12px; margin-bottom:12px; }
+.detail-grid>div>span { color:var(--ink4); display:block; font-size:10px; margin-bottom:2px; }
+
+.status-steps { display:flex; gap:0; background:var(--paper2); border:1px solid var(--line); border-radius:var(--r-lg); padding:12px; margin-bottom:16px; overflow-x:auto; }
+.step { display:flex; flex-direction:column; align-items:center; flex:1; min-width:64px; position:relative; }
+.step:not(:last-child)::after { content:''; position:absolute; top:14px; right:-50%; width:100%; height:1px; background:var(--line); z-index:0; }
+.step-dot { width:28px; height:28px; border-radius:50%; border:2px solid var(--line); background:var(--paper); z-index:1; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; transition:var(--tr); }
+.step.done .step-dot { background:var(--green); border-color:var(--green); color:#fff; }
+.step.current .step-dot { background:var(--blue); border-color:var(--blue); color:#fff; box-shadow:0 0 0 3px rgba(37,99,235,.2); }
+.step-label { font-size:9px; color:var(--ink4); margin-top:4px; text-align:center; }
+.step.done .step-label, .step.current .step-label { color:var(--ink2); font-weight:600; }
+
+.toast-c { position:fixed; bottom:20px; right:20px; z-index:300; display:flex; flex-direction:column; gap:6px; }
+.toast { background:var(--paper); border:1px solid var(--line); padding:10px 16px; border-radius:var(--r-lg); font-size:12px; box-shadow:var(--sh-md); display:flex; align-items:center; gap:8px; max-width:320px; animation:slideIn .2s ease; }
+.toast.ok  { border-color:var(--green); color:#065F46; background:var(--green-l); }
+.toast.err { border-color:var(--red);   color:var(--red); background:var(--red-l); }
+@keyframes slideIn { from { transform:translateX(20px); opacity:0; } to { transform:none; opacity:1; } }
+
+@media(max-width:768px) {
+  .main { padding:12px; }
+  .fr2, .fr3 { grid-template-columns:1fr; }
+  .side-panel { width:100vw; }
+  .stat-row { grid-template-columns:1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <a class="logo" href="#">
+    <div class="logo-mark">K</div>
+    <span class="logo-text">인플루언서 관리</span>
+  </a>
+  <nav class="nav">
+    <button class="nav-btn on"  onclick="switchTab('dash',this)">📊 이번 차수 현황</button>
+    <button class="nav-btn"     onclick="switchTab('all',this)">전체 인플루언서</button>
+    <button class="nav-btn"     onclick="switchTab('cyc',this)">차수별 운영</button>
+    <button class="nav-btn"     onclick="switchTab('ship',this)">발송 필요</button>
+    <button class="nav-btn"     onclick="switchTab('done',this)">발송 완료</button>
+    <button class="nav-btn bl-tab" onclick="switchTab('black',this)">블랙리스트</button>
+    <button class="nav-btn"    onclick="switchTab('guide',this)">가이드</button>
+  </nav>
+  <div class="hd-actions">
+    <button onclick="loadAll()" title="새로고침" style="width:32px;height:32px;border-radius:var(--r);border:1px solid var(--line2);background:var(--paper);color:var(--ink3);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:var(--tr)" onmouseover="this.style.background='var(--paper3)'" onmouseout="this.style.background='var(--paper)'">↻</button>
+    <button class="btn-add" onclick="openAddPanel()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      인플루언서 등록
+    </button>
+  </div>
+</header>
+
+<div class="main">
+
+<div id="tab-dash" class="panel on">
+  <!-- 차수 배너 -->
+  <div id="dash-banner" style="background:linear-gradient(135deg,var(--blue) 0%,var(--blue-d) 100%);border:none;border-radius:16px;padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;box-shadow:0 4px 20px rgba(49,130,246,.25);">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div id="dash-cycle-tag" style="background:rgba(255,255,255,.2);color:#fff;border-radius:6px;padding:4px 12px;font-size:12px;font-weight:700;"></div>
+      <div>
+        <div id="dash-cycle-title" style="color:#fff;font-size:17px;font-weight:700;"></div>
+        <div id="dash-cycle-sub" style="color:rgba(255,255,255,.7);font-size:11px;margin-top:2px;"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <div id="dash-stat-total"  class="dash-stat-box"></div>
+      <div id="dash-stat-active" class="dash-stat-box v-green"></div>
+      <div id="dash-stat-post"   class="dash-stat-box v-amber"></div>
+      <div id="dash-stat-ship"   class="dash-stat-box v-red"></div>
+    </div>
+  </div>
+
+  <!-- 차수 없음 -->
+  <div id="dash-empty" style="display:none;background:var(--paper);border:2px dashed var(--line2);border-radius:12px;padding:48px;text-align:center;margin-bottom:16px;">
+    <div style="font-size:32px;margin-bottom:12px;">📭</div>
+    <div style="font-size:15px;font-weight:700;margin-bottom:6px;" id="dash-empty-title"></div>
+    <div style="font-size:12px;color:var(--ink3);margin-bottom:16px;">이번 달 차수가 등록되지 않았습니다.<br>새 인플루언서를 등록하면 이번 달 차수 현황에 자동으로 표시됩니다.</div>
+    <button class="btn-p" onclick="openAddPanel()">+ 이번 달 차수 시작하기</button>
+  </div>
+
+  <!-- 전체 진행 현황 카드 -->
+  <div id="dash-cards-wrap" style="background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;">
+    <div style="padding:12px 16px;border-bottom:1px solid var(--line);background:var(--paper2);display:flex;align-items:center;gap:8px;">
+      <span style="font-size:13px;font-weight:600;">전체 진행 현황</span>
+      <span id="dash-all-cnt" style="padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:var(--purple-l);color:var(--purple);"></span>
+    </div>
+    <div id="dash-cards" style="padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;"></div>
+  </div>
+</div>
+
+<div id="tab-all" class="panel">
+  <div class="stat-row" id="all-stats"></div>
+  <div class="toolbar">
+    <div class="filter-group" id="all-pf">
+      <button class="f-btn f-all on" onclick="setFilter('allPF','all',this,'all-pf')">전체</button>
+      <button class="f-btn f-nv"  onclick="setFilter('allPF','네이버 블로그',this,'all-pf')">네이버</button>
+      <button class="f-btn f-ts"  onclick="setFilter('allPF','티스토리',this,'all-pf')">티스토리</button>
+    </div>
+    <div class="vsep"></div>
+    <div class="filter-group" id="all-bf">
+      <button class="f-btn f-all on" onclick="setFilter('allBL','all',this,'all-bf')">전체</button>
+      <button class="f-btn f-bl"  onclick="setFilter('allBL','Y',this,'all-bf')">블랙리스트</button>
+      <button class="f-btn f-ok"  onclick="setFilter('allBL','N',this,'all-bf')">정상</button>
+    </div>
+    <input class="search-input ml" id="all-q" placeholder="닉네임 / 이메일 / 블로그ID 검색..." oninput="renderAll()">
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">인플루언서 목록</span>
+      <span class="card-count" id="all-cnt"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <colgroup>
+          <col style="width:70px"><col style="width:110px"><col style="width:180px">
+          <col style="width:80px"><col style="width:80px"><col style="width:65px">
+          <col style="width:80px"><col style="width:90px"><col style="width:90px"><col style="width:110px">
+        </colgroup>
+        <thead><tr>
+          <th>플랫폼</th><th>닉네임</th><th>이메일</th>
+          <th>카테고리</th><th>방문자수</th><th>협업수</th>
+          <th>평균단가</th><th>최근 차수</th><th>최근 상태</th><th>액션</th>
+        </tr></thead>
+        <tbody id="all-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="tab-cyc" class="panel">
+  <div class="stat-row" id="cyc-stats"></div>
+  <div class="toolbar">
+    <select class="cycle-sel" id="cyc-sel" onchange="onCycleChange()"></select>
+    <div class="vsep"></div>
+    <div class="filter-group" id="cyc-sf">
+      <button class="f-btn f-all on" onclick="setFilter('cycSF','all',this,'cyc-sf')">전체</button>
+      <button class="f-btn f-s-contact" onclick="setFilter('cycSF','컨택완료',this,'cyc-sf')">컨택완료</button>
+      <button class="f-btn f-s-wait"    onclick="setFilter('cycSF','답변대기',this,'cyc-sf')">답변대기</button>
+      <button class="f-btn f-s-confirm" onclick="setFilter('cycSF','진행확정',this,'cyc-sf')">진행확정</button>
+      <button class="f-btn f-s-guide"   onclick="setFilter('cycSF','가이드발송',this,'cyc-sf')">가이드발송</button>
+      <button class="f-btn f-s-post"    onclick="setFilter('cycSF','포스팅완료',this,'cyc-sf')">포스팅완료</button>
+      <button class="f-btn f-s-ship"    onclick="setFilter('cycSF','발송대기',this,'cyc-sf')">발송대기</button>
+      <button class="f-btn f-s-done"    onclick="setFilter('cycSF','발송완료',this,'cyc-sf')">발송완료</button>
+      <button class="f-btn f-s-reject"  onclick="setFilter('cycSF','거절',this,'cyc-sf')">거절</button>
+    </div>
+    <div class="vsep"></div>
+    <div class="filter-group" id="cyc-pf">
+      <button class="f-btn f-nv on" id="cyc-nv" onclick="togglePlatF('cyc','네이버 블로그',this)">네이버</button>
+      <button class="f-btn f-ts on" id="cyc-ts" onclick="togglePlatF('cyc','티스토리',this)">티스토리</button>
+    </div>
+    <button class="btn-add ml" style="font-size:12px;padding:5px 12px;" onclick="openAddPanel()">+ 이번 차수 등록</button>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title" id="cyc-title">차수 운영</span>
+      <span class="card-count" id="cyc-cnt"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <colgroup>
+          <col style="width:70px"><col style="width:110px"><col style="width:160px">
+          <col style="width:80px"><col style="width:90px"><col style="width:80px">
+          <col style="width:90px"><col style="width:100px"><col style="width:120px">
+        </colgroup>
+        <thead><tr>
+          <th>플랫폼</th><th>닉네임</th><th>이메일</th>
+          <th>제안금액</th><th>진행상태</th><th>가이드</th>
+          <th>포스팅마감</th><th>상품권발송</th><th>상태변경</th>
+        </tr></thead>
+        <tbody id="cyc-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="tab-ship" class="panel">
+  <div class="toolbar">
+    <select class="cycle-sel" id="ship-sel" onchange="renderShip()">
+      <option value="all">전체 차수</option>
+    </select>
+    <div class="vsep"></div>
+    <div class="filter-group" id="ship-pf">
+      <button class="f-btn f-nv on" id="ship-nv" onclick="togglePlatF('ship','네이버 블로그',this)">네이버</button>
+      <button class="f-btn f-ts on" id="ship-ts" onclick="togglePlatF('ship','티스토리',this)">티스토리</button>
+    </div>
+    <button class="btn-s ml" onclick="exportShipExcel()" style="font-size:12px;">📋 발송요청서 내보내기 (엑셀)</button>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">상품권 발송 필요</span>
+      <span class="card-count" id="ship-cnt"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <colgroup>
+          <col style="width:110px"><col style="width:70px"><col style="width:110px">
+          <col style="width:90px"><col style="width:80px"><col style="width:100px">
+          <col style="width:120px"><col style="width:180px"><col style="width:90px">
+        </colgroup>
+        <thead><tr>
+          <th>차수</th><th>플랫폼</th><th>닉네임</th>
+          <th>실명</th><th>확정금액</th><th>연락처</th>
+          <th>포스팅URL</th><th>진행상태</th><th>발송처리</th>
+        </tr></thead>
+        <tbody id="ship-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="tab-done" class="panel">
+  <div class="toolbar">
+    <select class="cycle-sel" id="done-sel" onchange="renderDone()">
+      <option value="all">전체 차수</option>
+    </select>
+    <div class="vsep"></div>
+    <div class="filter-group" id="done-pf">
+      <button class="f-btn f-nv on" id="done-nv" onclick="togglePlatF('done','네이버 블로그',this)">네이버</button>
+      <button class="f-btn f-ts on" id="done-ts" onclick="togglePlatF('done','티스토리',this)">티스토리</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">발송 완료</span>
+      <span class="card-count" id="done-cnt"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <colgroup>
+          <col style="width:110px"><col style="width:70px"><col style="width:110px">
+          <col style="width:90px"><col style="width:80px"><col style="width:120px">
+          <col style="width:180px"><col style="width:90px">
+        </colgroup>
+        <thead><tr>
+          <th>차수</th><th>플랫폼</th><th>닉네임</th>
+          <th>실명</th><th>확정금액</th><th>연락처</th>
+          <th>포스팅URL</th><th>발송일</th>
+        </tr></thead>
+        <tbody id="done-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="tab-black" class="panel">
+  <div class="toolbar" style="margin-bottom:12px;">
+    <input class="search-input" id="black-q" placeholder="닉네임 / 이메일 / 블랙 사유 검색..." oninput="renderBlack()" style="min-width:280px;">
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title" style="color:var(--red)">블랙리스트</span>
+      <span class="card-count" id="black-cnt"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <colgroup>
+          <col style="width:70px"><col style="width:110px"><col style="width:160px">
+          <col style="width:130px"><col style="width:240px"><col style="width:60px"><col style="width:90px">
+        </colgroup>
+        <thead><tr>
+          <th>플랫폼</th><th>닉네임</th><th>이메일</th>
+          <th>블랙 사유</th><th>메모</th><th>협업수</th><th>액션</th>
+        </tr></thead>
+        <tbody id="black-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="tab-guide" class="panel">
+  <div class="toolbar" style="margin-bottom:14px;">
+    <span style="font-size:13px;font-weight:600;">가이드 목록</span>
+    <span id="guide-cnt" style="margin-left:8px;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--purple-l);color:var(--purple);"></span>
+    <button class="btn-add ml" style="font-size:12px;padding:5px 14px;" onclick="openGuideAddPanel()">+ 가이드 등록</button>
+  </div>
+  <div id="guide-cards" style="display:flex;flex-direction:column;gap:10px;"></div>
+  <div id="guide-empty" style="display:none;background:var(--paper);border:2px dashed var(--line2);border-radius:12px;padding:48px;text-align:center;">
+    <div style="font-size:28px;margin-bottom:10px;">📋</div>
+    <div style="font-size:14px;font-weight:600;margin-bottom:6px;color:var(--ink2);">등록된 가이드가 없습니다</div>
+    <button class="btn-p" style="margin-top:8px;" onclick="openGuideAddPanel()">+ 첫 가이드 등록</button>
+  </div>
+</div>
+
+</div>
+
+<div class="overlay" id="overlay" onclick="closeIfOut(event)">
+  <div class="side-panel" id="sp">
+    <div class="sp-head">
+      <span class="sp-title" id="sp-title">등록</span>
+      <button class="sp-close" onclick="closePanel()">✕</button>
+    </div>
+    <div class="sp-body" id="sp-body"></div>
+  </div>
+</div>
+
+<div class="toast-c" id="tc"></div>
+
+<script>
+// ════════════════════════════════════════════════════
+// ★ 여기에 Apps Script 배포 URL을 붙여넣으세요 ★
+// ════════════════════════════════════════════════════
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw7vaFTPPiGK8mttBAgGz2VOiIwZnpLfopoK0UqogklzaWJ2maO5N0HhSnjWQI1unZrTw/exec';
+
+// GET 래퍼
+async function apiGet(action) {
+  const res = await fetch(`${SCRIPT_URL}?action=${action}`);
+  const text = await res.text();
+  try { return JSON.parse(text); }
+  catch { console.error('[GET] 응답 파싱 오류:', text.slice(0,300)); throw new Error('서버 응답 오류'); }
+}
+
+// POST 래퍼
+async function apiPost(payload) {
+  const res = await fetch(SCRIPT_URL, {
+    method: 'POST',
+    redirect: 'follow',
+    body: JSON.stringify(payload),
+  });
+  const text = await res.text();
+  try {
+    const json = JSON.parse(text);
+    if (json && (json.status === 'error' || json.error)) throw new Error(json.message || json.error || 'Apps Script 오류');
+    return json;
+  } catch(e) {
+    if (e.message && e.message !== 'Apps Script 오류') {
+      console.error(`[POST:${payload.action}] 응답 파싱 오류:`, text.slice(0,300));
+      throw new Error('서버 응답 오류 (JSON 파싱 실패). 브라우저 콘솔을 확인하세요.');
+    }
+    throw e;
+  }
+}
+
+// ── 상수 ──────────────────────────────────────────
+const STATUSES = ['컨택완료','답변대기','진행확정','가이드발송','포스팅완료','발송대기','발송완료','거절','블랙리스트'];
+const STATUS_BADGE = {
+  '컨택완료':'b-contact', '답변대기':'b-wait', '진행확정':'b-confirm',
+  '가이드발송':'b-guide', '포스팅완료':'b-post', '발송대기':'b-ship',
+  '발송완료':'b-done', '거절':'b-reject', '블랙리스트':'b-black'
+};
+const STATUS_STEPS = ['컨택완료','답변대기','진행확정','가이드발송','포스팅완료','발송대기','발송완료'];
+const BL_REASONS = ['단가 상향 요청','미발행 (발행 약속 불이행)','읽씹 (읽고 무응답)','안읽씹 (미열람)','포스팅 품질 불량','기타'];
+const CATEGORIES = ['IT/테크','마케팅','경제/재테크','일상/라이프','정보성','기타'];
+const FEES = ['50,000','100,000','150,000','200,000'];
+
+// ── 상태 ──────────────────────────────────────────
+let _rows = [];
+let _summary = [];
+let _guides = [];
+let _cycles = [];
+let _curCycle = '';
+let _editRow = null;
+let _currentEditEmail = '';
+let _loadToken = 0;
+
+const F = {
+  allPF:'all', allBL:'all',
+  cycSF:'all', cycPF:new Set(['네이버 블로그','티스토리']),
+  shipPF:new Set(['네이버 블로그','티스토리']),
+  donePF:new Set(['네이버 블로그','티스토리']),
+};
+
+// ── 패널 전환 버그 방지 플래그 ──────────────────────
+let _panelTransitioning = false;
+
+// ── 초기화 ────────────────────────────────────────
+window.onload = () => loadAll();
+
+function _showLoader() {
+  let el = document.getElementById('global-loader');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'global-loader';
+    el.style.cssText = [
+      'position:fixed','inset:0','z-index:500',
+      'background:rgba(15,23,42,.55)',
+      'backdrop-filter:blur(3px)',
+      'display:flex','flex-direction:column',
+      'align-items:center','justify-content:center','gap:14px'
+    ].join(';');
+    el.innerHTML = `
+      <div style="width:40px;height:40px;border:3px solid #334155;border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;"></div>
+      <div style="color:#94A3B8;font-size:13px;font-weight:500;">불러오는 중...</div>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
+    document.body.appendChild(el);
+  }
+  el.style.display = 'flex';
+}
+function _hideLoader() {
+  const el = document.getElementById('global-loader');
+  if (el) el.style.display = 'none';
+}
+
+function loadAll() {
+  _loadToken++;
+  const token = _loadToken;
+  _showLoader();
+
+  Promise.all([
+    apiGet('getAllRows'),
+    apiGet('getGuides')
+  ]).then(([rows, guides]) => {
+    if (token !== _loadToken) return;
+    _rows   = Array.isArray(rows)   ? rows.filter(r => r && r.email) : [];
+    _guides = Array.isArray(guides) ? guides : [];
+    _afterLoad();
+  }).catch(err => {
+    toast('데이터 로드 실패: ' + err, 'err');
+  }).finally(() => {
+    if (token === _loadToken) _hideLoader();
+  });
+}
+
+function _afterLoad() {
+  _summary  = _buildSummary(_rows);
+  _cycles   = [...new Set(_rows.map(r => r.cycle).filter(Boolean))].sort().reverse();
+  // 차수별 운영 탭: 오늘 날짜 기준 월에 맞는 차수 자동 선택
+  _curCycle = _autoDetectCycle() || _cycles[0] || '';
+  _buildCycleSels();
+  renderDash();
+  renderAll();
+  renderCyc();
+  renderShip();
+  renderDone();
+  renderBlack();
+  renderGuide();
+}
+
+// 오늘 월 기준으로 차수 자동 감지
+function _autoDetectCycle() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+  // 차수 목록에서 현재 연도+월에 해당하는 항목 검색
+  // 형식 예: "2026년 4차", "2026년 4월 4차" 등 다양한 형식 지원
+  const monthStr = String(month);
+  return _cycles.find(c => {
+    const s = String(c);
+    const re = new RegExp(`\\D${monthStr}[차월]`);
+    return s.includes(String(year)) && re.test(s);
+  }) || null;
+}
+
+function _buildSummary(rows) {
+  const map = {};
+  rows.forEach(r => {
+    if (!r.email) return;
+    const k = r.email.toLowerCase();
+    if (!map[k]) {
+      map[k] = {
+        email: r.email, nick: r.nick || '', platform: r.platform || '네이버 블로그',
+        category: r.category || '', visitors: r.visitors || '',
+        blogUrl: r.blogUrl || '', black: r.black || 'N',
+        blackReason: r.blackReason || '', memo: r.memo || '',
+        collabCount: 0, fees: [], latestCycle: '', latestStatus: '', rowIndex: r.rowIndex
+      };
+    }
+    const inf = map[k];
+    if (r.nick)     inf.nick       = r.nick;
+    if (r.platform) inf.platform   = r.platform;
+    if (r.blogUrl)  inf.blogUrl    = r.blogUrl;
+    if (r.memo)     inf.memo       = r.memo;
+    if (r.black === 'Y') { inf.black = 'Y'; inf.blackReason = r.blackReason || ''; }
+    if (r.cycle && r.cycle.trim()) {
+      inf.collabCount++;
+      inf.latestCycle  = r.cycle;
+      inf.latestStatus = r.status || '';
+      const fee = Number(String(r.confirmFee || r.proposeFee || '0').replace(/[^0-9]/g,''));
+      if (fee > 0) inf.fees.push(fee);
+    }
+  });
+  return Object.values(map).map(inf => ({
+    ...inf,
+    avgFee: inf.fees.length ? Math.round(inf.fees.reduce((a,b)=>a+b,0)/inf.fees.length) : 0
+  }));
+}
+
+function _buildCycleSels() {
+  const savedShip = document.getElementById('ship-sel')?.value;
+  const savedDone = document.getElementById('done-sel')?.value;
+  ['cyc-sel','ship-sel','done-sel'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const base = id==='cyc-sel' ? '' : '<option value="all">전체 차수</option>';
+    sel.innerHTML = base + _cycles.map(c=>`<option value="${c}">${c}</option>`).join('');
+    if (id==='cyc-sel') sel.value = _curCycle;
+    else if (id==='ship-sel' && savedShip && _cycles.includes(savedShip)) sel.value = savedShip;
+    else if (id==='done-sel' && savedDone && _cycles.includes(savedDone)) sel.value = savedDone;
+  });
+}
+
+function onCycleChange() {
+  _curCycle = document.getElementById('cyc-sel').value;
+  F.cycSF = 'all';
+  document.querySelectorAll('#cyc-sf .f-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelector('#cyc-sf .f-all').classList.add('on');
+  renderCyc();
+}
+
+function switchTab(id, el) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-'+id).classList.add('on');
+  el.classList.add('on');
+  closePanel();
+}
+
+function setFilter(key, val, el, grpId) {
+  F[key] = val;
+  document.querySelectorAll('#'+grpId+' .f-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  if (key==='allPF'||key==='allBL') renderAll();
+  if (key==='cycSF') renderCyc();
+}
+function togglePlatF(tab, val, el) {
+  const set = F[tab+'PF'];
+  if (set.has(val)) set.delete(val); else set.add(val);
+  el.classList.toggle('on', set.has(val));
+  if (tab==='cyc')  renderCyc();
+  if (tab==='ship') renderShip();
+  if (tab==='done') renderDone();
+}
+
+function sbadge(s) { return `<span class="badge ${STATUS_BADGE[s]||''}">${s}</span>`; }
+function pbadge(p) {
+  return p==='티스토리'
+    ? '<span class="badge b-ts">티스토리</span>'
+    : '<span class="badge b-nv">네이버</span>';
+}
+function feeStr(f) { return f ? Number(f).toLocaleString()+'원' : '—'; }
+function rowsOf(email) { return _rows.filter(r=>r.email.toLowerCase()===email.toLowerCase()); }
+function qsel(rowIndex, status) {
+  return `<select class="qs" onchange="quickStatus(${rowIndex},this.value)" onclick="event.stopPropagation()">
+    ${STATUSES.map(s=>`<option${s===status?' selected':''}>${s}</option>`).join('')}
+  </select>`;
+}
+
+// ── 렌더: 대시보드 ────────────────────────────────
+function renderDash() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+
+  // 오늘 날짜 기준 차수 감지 (이번 달 차수가 없으면 null → 새 차수 안내)
+  const dashCycle = _autoDetectCycle();
+  const cycleRows = _rows.filter(r => r.cycle === dashCycle && r.black !== 'Y' && r.status !== '블랙리스트');
+
+  // 배너
+  const tag = document.getElementById('dash-cycle-tag');
+  const title = document.getElementById('dash-cycle-title');
+  const sub = document.getElementById('dash-cycle-sub');
+  if (tag)   tag.textContent   = dashCycle || `${year}년 ${month}차`;
+  if (title) title.textContent = `${month}월 운영 현황`;
+
+  // 마감일 계산 (차수 전체 마감: 가장 늦은 deadline)
+  const deadlines = cycleRows.map(r => r.deadline).filter(Boolean).sort();
+  const lastDeadline = deadlines[deadlines.length - 1] || '';
+  if (sub) sub.textContent = lastDeadline
+    ? `오늘 기준 자동 선택 · 차수 마감 ${lastDeadline}`
+    : '오늘 기준 자동 선택';
+
+  // 통계
+  const total   = cycleRows.length;
+  const active  = cycleRows.filter(r => ['진행확정','가이드발송','포스팅완료','발송대기','발송완료'].includes(r.status)).length;
+  const postPending = cycleRows.filter(r => !r.postUrl && ['가이드발송','진행확정'].includes(r.status)).length;
+  const shipPending = cycleRows.filter(r => r.sent === 'N' && ['포스팅완료','발송대기'].includes(r.status)).length;
+
+  function setStatBox(id, v, label) {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = `<div class="dsv">${v}</div><div class="dsl">${label}</div>`;
+  }
+  setStatBox('dash-stat-total',  total,       '총 컨택');
+  setStatBox('dash-stat-active', active,      '진행확정+');
+  setStatBox('dash-stat-post',   postPending, '포스팅 대기');
+  setStatBox('dash-stat-ship',   shipPending, '발송 대기');
+
+  // 차수 없음 처리
+  const emptyEl    = document.getElementById('dash-empty');
+  const bannerEl   = document.getElementById('dash-banner');
+  const cardsWrap  = document.getElementById('dash-cards-wrap');
+  const emptyTitle = document.getElementById('dash-empty-title');
+
+  if (!dashCycle || cycleRows.length === 0) {
+    if (emptyEl)   emptyEl.style.display  = '';
+    if (bannerEl)  bannerEl.style.display = 'none';
+    if (cardsWrap) cardsWrap.style.display = 'none';
+    if (emptyTitle) emptyTitle.textContent = `${year}년 ${month}월 차수가 없습니다`;
+    return;
+  }
+  if (emptyEl)   emptyEl.style.display   = 'none';
+  if (bannerEl)  bannerEl.style.display  = '';
+  if (cardsWrap) cardsWrap.style.display = '';
+
+  const todayDate = new Date(); todayDate.setHours(0,0,0,0);
+
+  // 전체 진행 현황 카드 (진행 바 + 키워드)
+  const allCnt = document.getElementById('dash-all-cnt');
+  const cards  = document.getElementById('dash-cards');
+  if (allCnt) allCnt.textContent = cycleRows.length + '명';
+  if (!cards) return;
+
+  const sorted = [...cycleRows].sort((a,b) => {
+    const order = {
+      '발송대기':0,'포스팅완료':1,'가이드발송':2,
+      '진행확정':3,'답변대기':4,'컨택완료':5,
+      '발송완료':6,'거절':7,'블랙리스트':8
+    };
+    return (order[a.status]??9) - (order[b.status]??9);
+  });
+
+  cards.innerHTML = sorted.map(r => {
+    const stepIdx  = STATUS_STEPS.indexOf(r.status);
+    const isDone   = r.sent === 'Y';
+    const dl       = r.deadline ? new Date(r.deadline) : null;
+    if (dl) dl.setHours(0,0,0,0);
+    const dlDiff   = dl ? Math.ceil((dl - todayDate) / 86400000) : null;
+    const isUrgent = dlDiff !== null && dlDiff <= 3 && !isDone && !r.postUrl
+      && !['포스팅완료','발송대기','발송완료'].includes(r.status);
+
+    // 카드 테두리/불투명도
+    const cardStyle = isDone
+      ? 'opacity:.6;'
+      : isUrgent
+        ? 'border-color:#FCA5A5;border-width:2px;'
+        : '';
+
+    // 진행 바 세그먼트
+    const progSegs = STATUS_STEPS.map((s,i) => {
+      const bg = i < stepIdx
+        ? 'background:var(--green)'
+        : i === stepIdx
+          ? isUrgent ? 'background:var(--red)' : 'background:var(--blue)'
+          : 'background:var(--paper3)';
+      return `<div style="flex:1;height:5px;border-radius:3px;${bg};transition:background .3s;"></div>`;
+    }).join('');
+
+    // 현재 단계 라벨
+    const currentLabel = STATUS_STEPS[stepIdx] || r.status;
+    const deadlineStr = dlDiff !== null
+      ? dlDiff < 0
+        ? `<span style="color:var(--red);font-weight:700;">마감 ${Math.abs(dlDiff)}일 지남</span>`
+        : dlDiff === 0
+          ? `<span style="color:var(--red);font-weight:700;">오늘 마감</span>`
+          : dlDiff <= 3
+            ? `<span style="color:var(--amber);font-weight:600;">D-${dlDiff}</span>`
+            : `<span style="color:var(--ink4);">마감 ${r.deadline}</span>`
+      : r.deadline
+        ? `<span style="color:var(--ink4);">마감 ${r.deadline}</span>`
+        : `<span style="color:var(--ink4);">마감 미설정</span>`;
+
+    // 가이드 키워드
+    const guide = _guides.find(g => g.id === r.guideId);
+    let kwHtml = '';
+    if (!r.guideId) {
+      kwHtml = `<div style="padding:10px 14px;background:var(--amber-l);border-bottom:1px solid #FDE68A;">
+        <div style="font-size:10px;font-weight:700;color:var(--amber);margin-bottom:3px;">⚠ 가이드 미배정</div>
+        <div style="font-size:11px;color:var(--amber);">가이드 발송 전 확인하세요</div>
+      </div>`;
+    } else if (guide) {
+      const mainKws = guide.m1 ? guide.m1.split(',').map(k=>k.trim()).filter(Boolean) : [];
+      const subKws  = guide.m2 ? guide.m2.split(',').map(k=>k.trim()).filter(Boolean) : [];
+      kwHtml = `<div style="padding:10px 14px;background:var(--paper2);border-bottom:1px solid var(--line);">
+        <div style="font-size:10px;font-weight:700;color:var(--purple);margin-bottom:6px;">📋 ${guide.id}</div>
+        ${mainKws.length ? `<div style="margin-bottom:5px;display:flex;align-items:baseline;gap:5px;flex-wrap:wrap;">
+          <span style="font-size:9px;font-weight:700;color:var(--ink4);background:var(--paper3);border-radius:3px;padding:1px 5px;flex-shrink:0;">메인</span>
+          ${mainKws.map(k=>`<span style="display:inline-block;background:var(--purple-l);color:var(--purple);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:600;margin:1px 0;">${k}</span>`).join('')}
+        </div>` : ''}
+        ${subKws.length ? `<div style="display:flex;align-items:baseline;gap:5px;flex-wrap:wrap;">
+          <span style="font-size:9px;font-weight:700;color:var(--ink4);background:var(--paper3);border-radius:3px;padding:1px 5px;flex-shrink:0;">서브</span>
+          ${subKws.map(k=>`<span style="display:inline-block;background:var(--paper3);color:var(--ink2);border-radius:4px;padding:2px 7px;font-size:10px;border:1px solid var(--line2);margin:1px 0;">${k}</span>`).join('')}
+        </div>` : ''}
+      </div>`;
+    } else {
+      kwHtml = `<div style="padding:10px 14px;background:var(--paper2);border-bottom:1px solid var(--line);">
+        <div style="font-size:10px;font-weight:700;color:var(--purple);margin-bottom:3px;">📋 ${r.guideId}</div>
+        <div style="font-size:11px;color:var(--ink4);">키워드 정보 없음</div>
+      </div>`;
+    }
+
+    // 발송완료 상태 표시
+    const footRight = isDone
+      ? `<span style="color:var(--green);font-size:11px;font-weight:600;">✓ ${r.sentDate||''} 발송완료</span>`
+      : `<button class="btn-sm" onclick="event.stopPropagation();openRowDetail(${r.rowIndex})" style="font-size:11px;">수정</button>`;
+
+    return `<div onclick="openRowDetail(${r.rowIndex})" style="background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;transition:box-shadow .2s,transform .2s;${cardStyle}"
+      onmouseover="this.style.boxShadow='0 6px 20px rgba(0,0,0,.1)';this.style.transform='translateY(-1px)'"
+      onmouseout="this.style.boxShadow='';this.style.transform=''">
+
+      <!-- 헤더 -->
+      <div style="padding:12px 14px 10px;display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid var(--line);${isUrgent&&!isDone?'background:var(--red-l);':isDone?'background:var(--purple-l);':''}">
+        ${pbadge(r.platform||'네이버 블로그')}
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.nick}</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:2px;">${r.category||''} ${r.visitors?'· 일방문 '+r.visitors:''}</div>
+        </div>
+        <div style="flex-shrink:0;">${sbadge(r.status)}</div>
+      </div>
+
+      <!-- 진행 바 -->
+      <div style="padding:12px 14px;border-bottom:1px solid var(--line);">
+        <div style="display:flex;gap:3px;margin-bottom:6px;">${progSegs}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:11px;font-weight:600;color:${isUrgent?'var(--red)':isDone?'var(--green)':'var(--blue)'};">
+            ${isDone ? '✓ 완료' : '▶ ' + currentLabel}
+          </span>
+          <span style="font-size:11px;">${deadlineStr}</span>
+        </div>
+      </div>
+
+      <!-- 키워드 -->
+      ${kwHtml}
+
+      <!-- 하단 -->
+      <div style="padding:9px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink3);">${feeStr(r.confirmFee||r.proposeFee)}</span>
+        ${footRight}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// 인라인 URL 저장
+function saveInlineUrl(rowIndex, url, inputEl) {
+  url = url.trim();
+  if (!url) return;
+  inputEl.disabled = true;
+  apiPost({ action: 'updateRow', rowIndex, data: { postUrl: url } })
+    .then(() => {
+      const row = _rows.find(r => r.rowIndex === rowIndex);
+      if (row) row.postUrl = url;
+      toast('포스팅 URL 저장됨', 'ok');
+      renderDash();
+    })
+    .catch(e => {
+      inputEl.disabled = false;
+      toast('저장 오류: ' + e, 'err');
+    });
+}
+
+// ── 렌더: 전체 인플루언서 ─────────────────────────
+function renderAll() {
+  const q = (document.getElementById('all-q')||{}).value?.toLowerCase()||'';
+  const rows = _summary.filter(i => {
+    const plat = i.platform || '네이버 블로그';
+    if (F.allPF!=='all' && plat!==F.allPF) return false;
+    if (F.allBL!=='all' && (i.black||'N')!==F.allBL) return false;
+    if (q && !String(i.nick||'').toLowerCase().includes(q) && !String(i.email||'').toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const blCnt = _summary.filter(i=>i.black==='Y').length;
+  document.getElementById('all-stats').innerHTML = [
+    {l:'전체',    v:_summary.length},
+    {l:'블랙리스트',v:blCnt, cls:'v-red'},
+    {l:'네이버',  v:_summary.filter(i=>i.platform==='네이버 블로그').length},
+    {l:'티스토리',v:_summary.filter(i=>i.platform==='티스토리').length},
+  ].map(x=>`<div class="stat-card"><div class="stat-label">${x.l}</div><div class="stat-value ${x.cls||''}">${x.v}</div></div>`).join('');
+  document.getElementById('all-cnt').textContent = `${rows.length}명`;
+  const b = document.getElementById('all-body');
+  if (!rows.length) { b.innerHTML=`<tr class="empty-row"><td colspan="10">조건에 맞는 인플루언서가 없습니다.</td></tr>`; return; }
+  b.innerHTML = rows.map(i => {
+    const isbl = i.black==='Y';
+    return `<tr class="${isbl?'bl-row':''}" onclick="openInfDetail('${i.email}')">
+      <td>${pbadge(i.platform)}</td>
+      <td style="white-space:nowrap"><strong>${i.nick}</strong>${isbl?' <span class="badge b-bl" style="font-size:9px;vertical-align:middle">블랙</span>':''}</td>
+      <td class="mono" style="font-size:11px">${i.email}</td>
+      <td>${i.category||'—'}</td>
+      <td>${i.visitors||'—'}</td>
+      <td style="text-align:center;font-weight:700">${i.collabCount}</td>
+      <td class="mono">${i.avgFee?i.avgFee.toLocaleString()+'원':'—'}</td>
+      <td style="font-size:11px">${i.latestCycle||'—'}</td>
+      <td>${i.latestStatus?sbadge(i.latestStatus):'—'}</td>
+      <td onclick="event.stopPropagation()"><div style="display:flex;gap:4px">
+        ${isbl?`<button class="btn-sm" onclick="doRemoveBL('${i.email}')">해제</button>`:
+               `<button class="btn-red" onclick="openBLForm('${i.email}')">블랙지정</button>`}
+        <button class="btn-sm" onclick="openAddFromInf('${i.email}')">협업추가</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── 렌더: 차수별 운영 ─────────────────────────────
+function renderCyc() {
+  const sel = document.getElementById('cyc-sel');
+  if (sel) _curCycle = sel.value;
+  document.getElementById('cyc-title').textContent = (_curCycle||'') + ' 운영 현황';
+  const all = _rows.filter(r=>r.cycle===_curCycle);
+  const rows = all.filter(r => {
+    if (F.cycSF!=='all' && r.status!==F.cycSF) return false;
+    if (!F.cycPF.has(r.platform||'네이버 블로그')) return false;
+    return true;
+  });
+  const sc = {};
+  STATUSES.forEach(s=>sc[s]=0);
+  all.forEach(r=>{ if(sc[r.status]!==undefined) sc[r.status]++; });
+  document.getElementById('cyc-stats').innerHTML = [
+    {l:'총 컨택',    v:all.length},
+    {l:'진행확정',   v:(sc['진행확정']||0)+(sc['가이드발송']||0)+(sc['포스팅완료']||0)+(sc['발송대기']||0)+(sc['발송완료']||0), cls:'v-green'},
+    {l:'포스팅완료', v:sc['포스팅완료']||0},
+    {l:'발송대기',   v:sc['발송대기']||0, cls:'v-amber'},
+    {l:'발송완료',   v:sc['발송완료']||0},
+    {l:'거절',       v:(sc['거절']||0)+(sc['블랙리스트']||0), cls:'v-red'},
+  ].map(x=>`<div class="stat-card"><div class="stat-label">${x.l}</div><div class="stat-value ${x.cls||''}">${x.v}</div></div>`).join('');
+  document.getElementById('cyc-cnt').textContent = `${rows.length}명 / 총 ${all.length}명`;
+  const b = document.getElementById('cyc-body');
+  if (!rows.length) { b.innerHTML=`<tr class="empty-row"><td colspan="9">해당 조건의 데이터가 없습니다.</td></tr>`; return; }
+  b.innerHTML = rows.map(r => {
+    const isbl = r.black==='Y';
+    return `<tr class="${isbl?'bl-row':''}" onclick="openRowDetail(${r.rowIndex})">
+      <td>${pbadge(r.platform||'네이버 블로그')}</td>
+      <td style="white-space:nowrap"><strong>${r.nick}</strong>${isbl?' <span class="badge b-bl" style="font-size:9px;vertical-align:middle">블랙</span>':''}</td>
+      <td class="mono" style="font-size:11px">${r.email}</td>
+      <td class="mono">${feeStr(r.proposeFee)}</td>
+      <td>${sbadge(r.status)}</td>
+      <td style="font-size:11px">${r.guideId?`<span style="font-weight:600;color:var(--purple)">${r.guideId}</span>`:'—'}</td>
+      <td style="font-size:11px">${r.deadline||'—'}</td>
+      <td>${r.sent==='Y'?'<span class="badge b-done">완료</span>':'<span class="badge b-ship">대기</span>'}</td>
+      <td onclick="event.stopPropagation()">${qsel(r.rowIndex,r.status)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── 렌더: 발송 필요 ───────────────────────────────
+function renderShip() {
+  const sc = document.getElementById('ship-sel')?.value||'all';
+  const rows = _rows.filter(r => {
+    if (r.sent!=='N') return false;
+    if (!['포스팅완료','발송대기'].includes(r.status)) return false;
+    if (!F.shipPF.has(r.platform||'네이버 블로그')) return false;
+    if (sc!=='all' && r.cycle!==sc) return false;
+    return true;
+  });
+  document.getElementById('ship-cnt').textContent = `${rows.length}건`;
+  const b = document.getElementById('ship-body');
+  if (!rows.length) { b.innerHTML=`<tr class="empty-row"><td colspan="9">발송 대기 건이 없습니다.</td></tr>`; return; }
+  b.innerHTML = rows.map(r => `<tr onclick="openRowDetail(${r.rowIndex})">
+    <td style="font-size:11px">${r.cycle}</td>
+    <td>${pbadge(r.platform||'네이버 블로그')}</td>
+    <td><strong>${r.nick}</strong></td>
+    <td>${r.realName||'<span style="color:var(--ink4)">미수집</span>'}</td>
+    <td class="mono">${feeStr(r.confirmFee||r.proposeFee)}</td>
+    <td class="mono" style="font-size:11px">${r.phone||'—'}</td>
+    <td style="font-size:11px">${r.postUrl?`<a href="${r.postUrl}" target="_blank" onclick="event.stopPropagation()" style="color:var(--blue)">보기 →</a>`:'—'}</td>
+    <td>${sbadge(r.status)}</td>
+    <td onclick="event.stopPropagation()">
+      <button class="btn-green" onclick="doMarkSent(${r.rowIndex})">발송처리</button>
+    </td>
+  </tr>`).join('');
+}
+
+// ── 렌더: 발송 완료 ───────────────────────────────
+function renderDone() {
+  const sc = document.getElementById('done-sel')?.value||'all';
+  const rows = _rows.filter(r => {
+    if (r.sent!=='Y') return false;
+    if (!F.donePF.has(r.platform||'네이버 블로그')) return false;
+    if (sc!=='all' && r.cycle!==sc) return false;
+    return true;
+  });
+  document.getElementById('done-cnt').textContent = `${rows.length}건`;
+  const b = document.getElementById('done-body');
+  if (!rows.length) { b.innerHTML=`<tr class="empty-row"><td colspan="8">발송 완료 건이 없습니다.</td></tr>`; return; }
+  b.innerHTML = rows.map(r => `<tr onclick="openRowDetail(${r.rowIndex})">
+    <td style="font-size:11px">${r.cycle}</td>
+    <td>${pbadge(r.platform||'네이버 블로그')}</td>
+    <td><strong>${r.nick}</strong></td>
+    <td>${r.realName||'—'}</td>
+    <td class="mono">${feeStr(r.confirmFee||r.proposeFee)}</td>
+    <td class="mono" style="font-size:11px">${r.phone||'—'}</td>
+    <td style="font-size:11px">${r.postUrl?`<a href="${r.postUrl}" target="_blank" onclick="event.stopPropagation()" style="color:var(--blue)">보기 →</a>`:'—'}</td>
+    <td style="font-size:11px">${r.sentDate||'—'}</td>
+  </tr>`).join('');
+}
+
+// ── 렌더: 블랙리스트 ──────────────────────────────
+function renderBlack() {
+  const q = (document.getElementById('black-q')?.value || '').toLowerCase().trim();
+  let bls = _summary.filter(i=>i.black==='Y');
+  if (q) {
+    bls = bls.filter(i =>
+      (i.nick||'').toLowerCase().includes(q) ||
+      (i.email||'').toLowerCase().includes(q) ||
+      (i.blackReason||'').toLowerCase().includes(q) ||
+      (i.memo||'').toLowerCase().includes(q)
+    );
+  }
+  const total = _summary.filter(i=>i.black==='Y').length;
+  document.getElementById('black-cnt').textContent = q ? `${bls.length}명 / 총 ${total}명` : `${total}명`;
+  const b = document.getElementById('black-body');
+  if (!bls.length) { b.innerHTML=`<tr class="empty-row"><td colspan="7">${q ? '검색 결과가 없습니다.' : '블랙리스트가 비어 있습니다.'}</td></tr>`; return; }
+  b.innerHTML = bls.map(i => `<tr class="bl-row" onclick="openInfDetail('${i.email}')">
+    <td>${pbadge(i.platform)}</td>
+    <td><strong>${i.nick}</strong></td>
+    <td class="mono" style="font-size:11px">${i.email}</td>
+    <td><span class="badge b-black" style="font-size:10px">${i.blackReason||'사유 없음'}</span></td>
+    <td style="font-size:11px;color:var(--ink3)">${i.memo||'—'}</td>
+    <td style="text-align:center;font-weight:700">${i.collabCount}</td>
+    <td onclick="event.stopPropagation()">
+      <button class="btn-sm" onclick="doRemoveBL('${i.email}')">해제</button>
+    </td>
+  </tr>`).join('');
+}
+
+// ── 빠른 상태 변경 ─────────────────────────────────
+function quickStatus(rowIndex, val) {
+  if (val === '가이드발송') { openGuideForm(rowIndex, val); return; }
+  if (val === '포스팅완료') { openPostForm(rowIndex, val); return; }
+  if (val === '발송대기')   { openShipReadyForm(rowIndex, val); return; }
+  if (val === '블랙리스트') { openBLFromRow(rowIndex); return; }  // BL 사유 입력 필요
+
+  const row = _rows.find(r => r.rowIndex === rowIndex);
+  const prevStatus = row ? row.status : '';
+  if (row) {
+    row.status = val;
+    if (val === '발송완료') { row.sent = 'Y'; row.sentDate = _today(); }
+  }
+  _summary = _buildSummary(_rows);
+  renderCyc(); renderShip(); renderDone(); renderBlack(); renderAll();
+
+  apiPost({ action: 'updateStatus', rowIndex, status: val, extra: val === '발송완료' ? { sent: 'Y', sentDate: _today() } : null })
+    .then(() => { toast('→ ' + val, 'ok'); loadAll(); })
+    .catch(e => {
+      toast('저장 오류: ' + e, 'err');
+      if (row) row.status = prevStatus;
+      _summary = _buildSummary(_rows);
+      renderCyc();
+    });
+}
+
+// ── 발송대기 전환 시 폼 ────────────────────────────
+function openShipReadyForm(rowIndex, newStatus) {
+  const r = _rows.find(x => x.rowIndex === rowIndex);
+  if (!r) return;
+  document.getElementById('sp-title').textContent = '발송 정보 입력';
+  document.getElementById('sp-body').innerHTML = `<div style="padding:20px;">
+    <div class="info-box" style="margin-bottom:16px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px">${r.nick}</div>
+      <div style="font-size:11px;color:var(--ink3)">${r.cycle} — 상품권 발송에 필요한 정보를 입력하세요.</div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">실명 (입금자명) <span class="req">*</span></label>
+        <input class="fc" id="sr-name" value="${r.realName||''}" placeholder="홍길동">
+      </div>
+      <div class="fg"><label class="fl">연락처 <span class="req">*</span></label>
+        <input class="fc" id="sr-phone" value="${r.phone||''}" placeholder="010-0000-0000">
+      </div>
+    </div>
+    <div class="fg"><label class="fl">확정금액 (원)</label>
+      <select class="fc" id="sr-fee">
+        <option value="">제안금액과 동일 (${feeStr(r.proposeFee)})</option>
+        ${FEES.map(f=>`<option value="${f.replace(/,/g,'')}"${r.confirmFee==f.replace(/,/g,'')?' selected':''}>${f}원</option>`).join('')}
+      </select>
+    </div>
+    <div class="fg"><label class="fl">포스팅 URL</label>
+      <input class="fc" id="sr-url" value="${r.postUrl||''}" placeholder="https://blog.naver.com/...">
+    </div>
+    <div class="btn-row">
+      <button class="btn-s" onclick="closePanel()">취소</button>
+      <button class="btn-p" onclick="saveShipReady(${rowIndex},'${newStatus}')">저장</button>
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+
+function saveShipReady(rowIndex, newStatus) {
+  const realName   = (document.getElementById('sr-name')||{}).value?.trim();
+  const phone      = (document.getElementById('sr-phone')||{}).value?.trim();
+  const confirmFee = (document.getElementById('sr-fee')||{}).value||'';
+  const postUrl    = (document.getElementById('sr-url')||{}).value?.trim()||'';
+  if (!realName || !phone) { toast('실명과 연락처는 필수입니다.', 'err'); return; }
+
+  const row = _rows.find(r => r.rowIndex === rowIndex);
+  if (row) {
+    row.status = newStatus; row.realName = realName; row.phone = phone;
+    if (confirmFee) row.confirmFee = confirmFee;
+    if (postUrl) row.postUrl = postUrl;
+  }
+  _summary = _buildSummary(_rows);
+  renderCyc(); renderShip(); renderDone();
+  closePanel();
+  toast('→ ' + newStatus, 'ok');
+
+  apiPost({ action: 'updateStatus', rowIndex, status: newStatus, extra: {realName, phone, confirmFee, postUrl} })
+    .then(() => { loadAll(); })
+    .catch(e => { toast('저장 오류: ' + e, 'err'); loadAll(); });
+}
+
+// ── 발송 처리 ──────────────────────────────────────
+function doMarkSent(rowIndex) {
+  if (!confirm('발송 처리하시겠습니까?')) return;
+  apiPost({ action: 'markAsSent', rowIndices: [rowIndex] })
+    .then(() => { toast('발송 완료 처리됨', 'ok'); loadAll(); })
+    .catch(e => toast('오류: ' + e, 'err'));
+}
+
+// ── 진행 단계에서 블랙 지정: 가이드 삭제 후 BL 폼 ───
+function openBLFromRow(rowIndex) {
+  const r = _rows.find(x => x.rowIndex === rowIndex);
+  if (!r) return;
+
+  // 가이드가 발송된 상태이면 삭제 확인
+  const hasGuide = !!r.guideId;
+  const guideLabel = hasGuide ? `가이드 <strong>${r.guideId}</strong>` : '';
+
+  document.getElementById('sp-title').textContent = r.nick + ' 블랙리스트 지정';
+  document.getElementById('sp-body').innerHTML = `<div style="padding:20px;">
+    <div class="info-box danger" style="margin-bottom:16px">
+      <div style="font-weight:700;font-size:13px;margin-bottom:6px;">⚠ 블랙리스트 지정 절차</div>
+      ${hasGuide ? `<div style="font-size:12px;color:var(--ink2);margin-bottom:8px;line-height:1.6;">
+        현재 ${guideLabel}가 배정되어 있습니다.<br>
+        블랙 지정 시 <strong>가이드 배정이 초기화</strong>되고 진행상태가 <strong>블랙리스트</strong>로 변경됩니다.
+      </div>` : `<div style="font-size:12px;color:var(--ink2);margin-bottom:8px;">지정 후 진행상태가 블랙리스트로 변경됩니다.</div>`}
+    </div>
+    <div class="fg"><label class="fl">블랙리스트 사유 <span class="req">*</span></label>
+      <select class="fc" id="bl-sel" onchange="toggleBLCustom(this.value)">
+        <option value="">선택...</option>
+        ${BL_REASONS.map(r2=>`<option>${r2}</option>`).join('')}
+      </select>
+    </div>
+    <div class="fg" id="bl-custom-wrap" style="display:none">
+      <label class="fl">직접 입력</label>
+      <input class="fc" id="bl-custom" placeholder="사유 직접 입력">
+    </div>
+    <div class="fg"><label class="fl">상세 메모 (선택)</label>
+      <textarea class="fc" id="bl-memo" placeholder="단가 금액, 구체적 경위 등...">${r.memo||''}</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn-s" onclick="_panelTransitioning=true;setTimeout(()=>{openRowDetail(${rowIndex});_panelTransitioning=false;},50)">취소</button>
+      <button style="padding:7px 14px;border-radius:var(--r);background:var(--red);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;flex:1" onclick="doBLFromRow(${rowIndex})">블랙리스트 지정 확정</button>
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+
+function doBLFromRow(rowIndex) {
+  const r = _rows.find(x => x.rowIndex === rowIndex);
+  if (!r) return;
+  const sel    = document.getElementById('bl-sel')?.value || '';
+  const custom = document.getElementById('bl-custom')?.value || '';
+  const memo   = document.getElementById('bl-memo')?.value || '';
+  const reason = sel === '기타' ? custom : sel;
+  if (!reason) { toast('사유를 선택하거나 입력해주세요.', 'err'); return; }
+
+  // 로컬 상태 업데이트: 가이드 초기화 + 상태 변경 + 블랙 지정
+  const prevGuideId = r.guideId;
+  r.status      = '블랙리스트';
+  r.black       = 'Y';
+  r.blackReason = reason;
+  r.guideId     = '';
+  r.guideSent   = '';
+  r.deadline    = '';
+  if (memo) r.memo = memo;
+  const inf = _summary.find(i => i.email === r.email);
+  if (inf) { inf.black = 'Y'; inf.blackReason = reason; if (memo) inf.memo = memo; }
+  _summary = _buildSummary(_rows);
+  renderDash(); renderCyc(); renderAll(); renderBlack();
+  closePanel();
+  toast('블랙리스트 지정 완료 · 가이드 초기화됨', 'ok');
+
+  // 서버에 순차 저장
+  const data = { status: '블랙리스트', guideId: '', guideSent: '', deadline: '' };
+  apiPost({ action: 'updateRow', rowIndex, data })
+    .then(() => apiPost({ action: 'setBlacklist', email: r.email, reason, memo }))
+    .then(() => { loadAll(); })
+    .catch(e => { toast('저장 오류: ' + e, 'err'); loadAll(); });
+}
+function openBLForm(email) {
+  const inf = _summary.find(i=>i.email===email) || {};
+  document.getElementById('sp-title').textContent = inf.nick + ' 블랙리스트 지정';
+  document.getElementById('sp-body').innerHTML = `<div style="padding:20px;">
+    <div class="info-box danger" style="margin-bottom:16px">
+      <div style="font-weight:600;margin-bottom:4px">⚠ 블랙리스트 지정</div>
+      <div style="font-size:12px;color:var(--red)">지정 후 차수 등록 시 경고가 표시됩니다.</div>
+    </div>
+    <div class="fg"><label class="fl">블랙리스트 사유 <span class="req">*</span></label>
+      <select class="fc" id="bl-sel" onchange="toggleBLCustom(this.value)">
+        <option value="">선택...</option>
+        ${BL_REASONS.map(r=>`<option>${r}</option>`).join('')}
+      </select>
+    </div>
+    <div class="fg" id="bl-custom-wrap" style="display:none">
+      <label class="fl">직접 입력</label>
+      <input class="fc" id="bl-custom" placeholder="사유 직접 입력">
+    </div>
+    <div class="fg"><label class="fl">상세 메모 (선택)</label>
+      <textarea class="fc" id="bl-memo" placeholder="단가 금액, 구체적 경위 등 상세 내용...">${inf.memo||''}</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn-s" onclick="closePanel()">취소</button>
+      <button style="padding:7px 14px;border-radius:var(--r);background:var(--red);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;flex:1" onclick="doSetBL('${email}')">블랙리스트 지정</button>
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function toggleBLCustom(v) {
+  document.getElementById('bl-custom-wrap').style.display = v==='기타' ? '' : 'none';
+}
+function doSetBL(email) {
+  const sel = document.getElementById('bl-sel').value;
+  const custom = document.getElementById('bl-custom')?.value||'';
+  const memo = document.getElementById('bl-memo')?.value||'';
+  const reason = sel==='기타' ? custom : sel;
+  if (!reason) { toast('사유를 선택하거나 입력해주세요.','err'); return; }
+  // 로컬 상태 즉시 반영
+  const inf = _summary.find(i=>i.email===email);
+  if (inf) { inf.black='Y'; inf.blackReason=reason; inf.memo=memo; }
+  _rows.filter(r=>r.email===email).forEach(r=>{ r.black='Y'; r.blackReason=reason; });
+  renderBlack(); renderAll(); renderCyc();
+  closePanel();
+  toast('블랙리스트 지정 완료', 'ok');
+  apiPost({ action: 'setBlacklist', email, reason, memo })
+    .then(() => { loadAll(); })
+    .catch(e => { toast('저장 오류: ' + e, 'err'); loadAll(); });
+}
+function doRemoveBL(email) {
+  if (!confirm('블랙리스트에서 해제하시겠습니까?')) return;
+  apiPost({ action: 'removeBlacklist', email })
+    .then(() => { toast('블랙리스트 해제', 'ok'); loadAll(); })
+    .catch(e => toast('오류: ' + e, 'err'));
+}
+
+// ── 인플루언서 상세 패널 ───────────────────────────
+function openInfDetail(email) {
+  const inf = _summary.find(i=>i.email===email) || {};
+  const hist = rowsOf(email);
+  document.getElementById('sp-title').textContent = inf.nick + ' 상세';
+  document.getElementById('sp-body').innerHTML = `<div style="padding:20px;">
+    <div class="info-box${inf.black==='Y'?' danger':''}">
+      <div class="inf-name">
+        ${pbadge(inf.platform)}
+        <span>${inf.nick}</span>
+        ${inf.black==='Y'?'<span class="badge b-bl">블랙리스트</span>':''}
+      </div>
+      <div class="info-grid">
+        <div><span>이메일</span>${inf.email}</div>
+        <div><span>카테고리</span>${inf.category||'—'}</div>
+        <div><span>방문자수</span>${inf.visitors||'—'}</div>
+        <div><span>블로그</span>${inf.blogUrl?`<a href="${inf.blogUrl}" target="_blank">링크 →</a>`:'—'}</div>
+        <div><span>총 협업</span><strong>${inf.collabCount}회</strong></div>
+        <div><span>평균 단가</span><strong>${inf.avgFee?inf.avgFee.toLocaleString()+'원':'—'}</strong></div>
+      </div>
+      ${inf.blackReason?`<div style="margin-top:10px;font-size:12px;font-weight:600;color:var(--red)">블랙 사유: ${inf.blackReason}</div>`:''}
+      ${inf.memo?`<div style="margin-top:8px"><div class="memo-box">${inf.memo}</div></div>`:''}
+    </div>
+    <hr class="divider">
+    <div class="sec-title">전체 협업 이력 (${hist.length}건)</div>
+    ${hist.length ? [...hist].reverse().map(r=>`
+      <div class="hist-item${inf.black==='Y'?' bl':''}">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          ${sbadge(r.status)}
+          <strong style="font-size:12px">${r.cycle||'차수 없음'}</strong>
+          <span class="mono" style="font-size:11px">${feeStr(r.proposeFee)}</span>
+          ${r.confirmFee&&r.confirmFee!=r.proposeFee?`<span style="font-size:10px;color:var(--ink3)">→ 확정 ${feeStr(r.confirmFee)}</span>`:''}
+        </div>
+        ${r.guideId?`<div style="font-size:11px;color:var(--ink3)">가이드: <strong>${r.guideId}</strong>${r.deadline?' | 마감: '+r.deadline:''}</div>`:''}
+        ${r.postUrl?`<div style="font-size:11px;margin-top:3px"><a href="${r.postUrl}" target="_blank">포스팅 →</a></div>`:''}
+      </div>`).join('') : '<div style="color:var(--ink4);font-size:12px;padding:16px 0">협업 이력이 없습니다.</div>'}
+    <div class="btn-row">
+      ${inf.black==='Y'
+        ?`<button class="btn-s" onclick="doRemoveBL('${email}')">블랙 해제</button>`
+        :`<button class="btn-red" onclick="openBLForm('${email}')">블랙 지정</button>`}
+      <button class="btn-s" onclick="openEditInf('${email}')">정보 수정</button>
+      <button class="btn-p" onclick="openAddFromInf('${email}')">협업 추가</button>
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+
+// ── 협업 행 상세 패널 (탭 없이 전체 내용 한 번에) ──
+function openRowDetail(rowIndex) {
+  _panelTransitioning = true;
+  setTimeout(() => _panelTransitioning = false, 100);
+  const r = _rows.find(x => x.rowIndex === rowIndex);
+  if (!r) return;
+  _renderRowDetailPanel(r);
+  document.getElementById('overlay').classList.add('open');
+}
+
+function _renderRowDetailPanel(r) {
+  const stepIdx = STATUS_STEPS.indexOf(r.status);
+  const guide   = _guides.find(g => g.id === r.guideId);
+  const allRows = rowsOf(r.email);
+
+  // 키워드 블록
+  let kwHtml = '';
+  if (guide) {
+    const mains = guide.m1 ? guide.m1.split(',').map(k=>k.trim()).filter(Boolean) : [];
+    const subs  = guide.m2 ? guide.m2.split(',').map(k=>k.trim()).filter(Boolean) : [];
+    kwHtml = `<div style="background:var(--paper2);border:1px solid var(--line);border-radius:8px;padding:12px;margin-top:8px;">
+      <div style="font-size:10px;font-weight:700;color:var(--purple);margin-bottom:6px;">📋 ${guide.id}${guide.cycle?' · '+guide.cycle:''}</div>
+      ${mains.length?`<div style="margin-bottom:5px;"><span style="font-size:9px;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:.4px;">메인</span>
+        <div style="margin-top:3px;">${mains.map(k=>`<span style="display:inline-block;background:var(--purple-l);color:var(--purple);border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;margin:2px 2px 2px 0;">${k}</span>`).join('')}</div></div>`:''}
+      ${subs.length?`<div><span style="font-size:9px;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:.4px;">서브</span>
+        <div style="margin-top:3px;">${subs.map(k=>`<span style="display:inline-block;background:var(--paper3);color:var(--ink2);border-radius:4px;padding:2px 8px;font-size:11px;border:1px solid var(--line2);margin:2px 2px 2px 0;">${k}</span>`).join('')}</div></div>`:''}</div>`;
+  } else if (r.guideId) {
+    kwHtml = `<div style="padding:8px 10px;background:var(--paper3);border-radius:8px;font-size:12px;color:var(--ink3);margin-top:8px;">${r.guideId} — 키워드 정보 없음</div>`;
+  }
+
+  // 다음 단계 버튼
+  let nextBtn = '';
+  if (r.status === '진행확정')
+    nextBtn = `<button class="btn-p" style="background:var(--blue);flex:1;" onclick="openGuideForm(${r.rowIndex},'가이드발송')">→ 가이드 발송 입력</button>`;
+  else if (r.status === '가이드발송')
+    nextBtn = `<button class="btn-p" style="background:var(--green);flex:1;" onclick="openPostForm(${r.rowIndex},'포스팅완료')">→ 포스팅 완료 입력</button>`;
+  else if (['포스팅완료','발송대기'].includes(r.status) && r.sent === 'N')
+    nextBtn = `<button class="btn-p" style="background:var(--green);flex:1;" onclick="doMarkSent(${r.rowIndex})">→ 발송 처리</button>`;
+
+  const blBtn = r.black === 'Y'
+    ? `<button class="btn-red" onclick="doRemoveBL('${r.email}')">블랙 해제</button>`
+    : `<button class="btn-red" onclick="openBLFromRow(${r.rowIndex})">블랙 지정</button>`;
+
+  const secTitle = (label) =>
+    `<div style="font-size:10px;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:.6px;margin:18px 0 10px;display:flex;align-items:center;gap:6px;">${label}<span style="flex:1;height:1px;background:var(--line);display:block;"></span></div>`;
+
+  document.getElementById('sp-title').textContent = r.nick;
+  document.getElementById('sp-body').innerHTML = `
+
+    <!-- ① 헤더 바 -->
+    <div style="background:linear-gradient(135deg,var(--blue) 0%,var(--blue-d) 100%);padding:16px 20px 14px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        ${pbadge(r.platform||'네이버 블로그')}
+        ${r.black==='Y'?'<span class="badge b-bl" style="font-size:10px;">블랙리스트</span>':''}
+      </div>
+      <div style="color:#fff;font-size:16px;font-weight:700;">${r.nick}</div>
+      <div style="color:rgba(255,255,255,.7);font-size:11px;margin-top:3px;">${r.email}</div>
+      <!-- 진행 바 -->
+      <div style="margin-top:12px;">
+        <div style="display:flex;gap:3px;margin-bottom:4px;">${STATUS_STEPS.map((s,i)=>{
+          const bg = i<stepIdx?'background:#6EE7B7':i===stepIdx?'background:#fff':'background:rgba(255,255,255,.2)';
+          return `<div style="flex:1;height:4px;border-radius:2px;${bg};"></div>`;
+        }).join('')}</div>
+        <div style="display:flex;gap:3px;">${STATUS_STEPS.map((s,i)=>{
+          const color = i<stepIdx?'#6EE7B7':i===stepIdx?'#fff':'rgba(255,255,255,.4)';
+          return `<div style="flex:1;font-size:8px;color:${color};font-weight:${i===stepIdx?700:400};text-align:center;white-space:nowrap;overflow:hidden;">${s}</div>`;
+        }).join('')}</div>
+      </div>
+    </div>
+
+    <!-- 본문 스크롤 영역 -->
+    <div style="padding:16px 20px;overflow-y:auto;">
+
+      <!-- ② 기본 정보 -->
+      ${secTitle('기본 정보')}
+      <div class="sp-rd-2col">
+        <div class="sp-rd-field"><span class="sp-rd-label">카테고리</span><div>${r.category||'—'}</div></div>
+        <div class="sp-rd-field"><span class="sp-rd-label">방문자수</span><div>${r.visitors||'—'}</div></div>
+      </div>
+      <div class="sp-rd-field">
+        <span class="sp-rd-label">블로그 URL</span>
+        ${r.blogUrl?`<a href="${r.blogUrl}" target="_blank" style="font-size:12px;color:var(--blue);">${r.blogUrl}</a>`:'<div style="color:var(--ink4);">—</div>'}
+      </div>
+      ${r.memo?`<div class="sp-rd-field" style="margin-top:8px;"><span class="sp-rd-label">메모</span>
+        <div style="background:#FAFAF7;border:1px solid #E8E4D4;border-radius:6px;padding:8px 10px;font-size:12px;white-space:pre-wrap;">${r.memo}</div></div>`:''}
+
+      <!-- ③ 협업 정보 (수정 가능) -->
+      ${secTitle('협업 정보')}
+      <div class="sp-rd-2col">
+        <div class="sp-rd-field">
+          <span class="sp-rd-label">차수</span>
+          <input class="sp-rd-input" id="rd-cycle" value="${r.cycle||''}">
+        </div>
+        <div class="sp-rd-field">
+          <span class="sp-rd-label">진행상태</span>
+          <select class="sp-rd-select" id="rd-status">
+            ${STATUSES.map(s=>`<option${s===r.status?' selected':''}>${s}</option>`).join('')}
+          </select>
+        </div>
+        <div class="sp-rd-field">
+          <span class="sp-rd-label">제안금액</span>
+          <select class="sp-rd-select" id="rd-fee">
+            <option value="">—</option>
+            ${FEES.map(f=>`<option value="${f.replace(/,/g,'')}"${r.proposeFee==f.replace(/,/g,'')?' selected':''}>${f}원</option>`).join('')}
+          </select>
+        </div>
+        <div class="sp-rd-field">
+          <span class="sp-rd-label">가이드 ID</span>
+          <input class="sp-rd-input" id="rd-guide" value="${r.guideId||''}">
+        </div>
+        <div class="sp-rd-field">
+          <span class="sp-rd-label">가이드 발송일</span>
+          <input class="sp-rd-input" type="date" id="rd-gsent" value="${r.guideSent||''}">
+        </div>
+        <div class="sp-rd-field">
+          <span class="sp-rd-label">포스팅 마감일</span>
+          <input class="sp-rd-input" type="date" id="rd-deadline" value="${r.deadline||''}">
+        </div>
+      </div>
+      ${r.guideId ? kwHtml : ''}
+
+      <!-- ④ 포스팅 정보 (수정 가능) -->
+      ${secTitle('포스팅 정보')}
+      <div class="sp-rd-field">
+        <span class="sp-rd-label">포스팅 URL</span>
+        <input class="sp-rd-input" id="rd-purl" value="${r.postUrl||''}" placeholder="https://blog.naver.com/...">
+      </div>
+      <div class="sp-rd-field">
+        <span class="sp-rd-label">포스팅 제목</span>
+        <input class="sp-rd-input" id="rd-ptitle" value="${r.postTitle||''}" placeholder="포스팅 제목">
+      </div>
+
+      <!-- ⑤ 발송 정보 (수정 가능) -->
+      ${secTitle('발송 정보')}
+      <div class="sp-rd-2col">
+        <div class="sp-rd-field">
+          <span class="sp-rd-label">실명 (입금자명)</span>
+          <input class="sp-rd-input" id="rd-name" value="${r.realName||''}" placeholder="홍길동">
+        </div>
+        <div class="sp-rd-field">
+          <span class="sp-rd-label">연락처</span>
+          <input class="sp-rd-input" id="rd-phone" value="${r.phone||''}" placeholder="010-0000-0000">
+        </div>
+      </div>
+      <div class="sp-rd-field">
+        <span class="sp-rd-label">확정금액</span>
+        <select class="sp-rd-select" id="rd-cfee">
+          <option value="">—</option>
+          ${FEES.map(f=>`<option value="${f.replace(/,/g,'')}"${r.confirmFee==f.replace(/,/g,'')?' selected':''}>${f}원</option>`).join('')}
+        </select>
+      </div>
+      <div class="sp-rd-2col" style="margin-top:8px;">
+        <div class="sp-rd-field">
+          <span class="sp-rd-label">상품권 발송 여부</span>
+          <div>${r.sent==='Y'?'<span style="color:var(--green);font-weight:600;">✓ 발송완료</span>':'<span style="color:var(--ink4);">미발송</span>'}</div>
+        </div>
+        <div class="sp-rd-field">
+          <span class="sp-rd-label">발송일</span>
+          <div style="font-size:12px;">${r.sentDate||'—'}</div>
+        </div>
+      </div>
+
+      <!-- ⑥ 협업 이력 -->
+      ${secTitle('전체 협업 이력 ('+allRows.length+'건)')}
+      ${allRows.length ? [...allRows].reverse().map(h=>`
+        <div onclick="openRowDetail(${h.rowIndex})" style="border-left:3px solid ${h.rowIndex===r.rowIndex?'var(--blue)':'var(--line2)'};padding:8px 12px;margin-bottom:6px;border-radius:0 6px 6px 0;background:${h.rowIndex===r.rowIndex?'var(--blue-l)':'var(--paper2)'};font-size:12px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='var(--blue-l)'" onmouseout="this.style.background='${h.rowIndex===r.rowIndex?'var(--blue-l)':'var(--paper2)'}'">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            ${sbadge(h.status)}
+            <strong>${h.cycle||'차수 없음'}</strong>
+            <span style="font-family:monospace;font-size:11px;color:var(--ink3);">${feeStr(h.proposeFee)}</span>
+            ${h.confirmFee&&h.confirmFee!=h.proposeFee?`<span style="font-size:10px;color:var(--ink3)">→ 확정 ${feeStr(h.confirmFee)}</span>`:''}
+            ${h.guideId?`<span style="font-size:10px;background:var(--purple-l);color:var(--purple);border-radius:3px;padding:1px 6px;">가이드 ${h.guideId}</span>`:''}
+          </div>
+          ${h.deadline?`<div style="font-size:10px;color:var(--ink3);margin-top:3px;">마감: ${h.deadline}</div>`:''}
+          ${h.postUrl?`<div style="font-size:10px;margin-top:3px;"><a href="${h.postUrl}" target="_blank" onclick="event.stopPropagation()" style="color:var(--blue);">포스팅 →</a></div>`:''}
+        </div>`).join('')
+      : '<div style="color:var(--ink4);font-size:12px;padding:12px 0;">협업 이력이 없습니다.</div>'}
+
+    </div><!-- /본문 -->
+
+    <!-- 하단 고정 버튼 -->
+    <div style="padding:12px 18px;border-top:1px solid var(--line);background:var(--paper2);display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-s" onclick="closePanel()">닫기</button>
+      ${blBtn}
+      <button class="btn-p" style="flex:1;" onclick="saveRowDetailAll(${r.rowIndex})">저장</button>
+      ${nextBtn}
+    </div>`;
+}
+
+// spSwitchTab은 탭 제거로 더 이상 사용하지 않지만 구형 호출 대비 유지
+function spSwitchTab(tab, rowIndex) { /* deprecated - no-op */ }
+
+function saveRowDetailAll(rowIndex) {
+  const data = {};
+  const fields = {
+    'rd-cycle': 'cycle', 'rd-status': 'status', 'rd-fee': 'proposeFee',
+    'rd-guide': 'guideId', 'rd-gsent': 'guideSent', 'rd-deadline': 'deadline',
+    'rd-purl': 'postUrl', 'rd-ptitle': 'postTitle',
+    'rd-name': 'realName', 'rd-phone': 'phone', 'rd-cfee': 'confirmFee'
+  };
+  Object.entries(fields).forEach(([elId, key]) => {
+    const el = document.getElementById(elId);
+    if (el) data[key] = el.value || '';
+  });
+
+  const row = _rows.find(r => r.rowIndex === rowIndex);
+  if (row) Object.assign(row, data);
+  _summary = _buildSummary(_rows);
+  renderDash(); renderCyc(); renderShip(); renderDone(); renderAll();
+  closePanel();
+  toast('저장 중...', '');
+
+  apiPost({ action: 'updateRow', rowIndex, data })
+    .then(() => { toast('수정 완료', 'ok'); loadAll(); })
+    .catch(e => { toast('오류: ' + e, 'err'); loadAll(); });
+}
+
+// ── 가이드 발송 입력 폼 ────────────────────────────
+function openGuideForm(rowIndex, newStatus) {
+  const r = _rows.find(x=>x.rowIndex===rowIndex);
+  document.getElementById('sp-title').textContent = '가이드 발송 정보 입력';
+  document.getElementById('sp-body').innerHTML = `<div style="padding:20px;">
+    <div class="info-box" style="margin-bottom:16px">
+      <strong>${r.nick}</strong> — ${r.cycle} 가이드 발송 정보를 입력하세요.
+    </div>
+    <div class="fg"><label class="fl">가이드 ID <span class="req">*</span></label>
+      <select class="fc" id="g-id">
+        <option value="">선택...</option>
+        ${_guides.map(g=>`<option value="${g.id}">${g.id} (${g.cycle}) ${g.link?'— 링크있음':''}</option>`).join('')}
+      </select>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">가이드 발송일 <span class="req">*</span></label>
+        <input class="fc" type="date" id="g-sent" value="${_today()}">
+      </div>
+      <div class="fg"><label class="fl">포스팅 마감일</label>
+        <input class="fc" type="date" id="g-deadline">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-s" onclick="closePanel()">취소</button>
+      <button class="btn-p" onclick="saveGuideForm(${rowIndex},'${newStatus}')">저장</button>
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function saveGuideForm(rowIndex, newStatus) {
+  const guideId  = document.getElementById('g-id').value;
+  const guideSent= document.getElementById('g-sent').value;
+  const deadline = document.getElementById('g-deadline').value;
+  if (!guideId||!guideSent) { toast('가이드ID와 발송일은 필수입니다.','err'); return; }
+  apiPost({ action: 'updateStatus', rowIndex, status: newStatus, extra: {guideId, guideSent, deadline} })
+    .then(() => { closePanel(); toast('가이드 발송 저장', 'ok'); loadAll(); })
+    .catch(e => toast('오류: ' + e, 'err'));
+}
+
+// ── 포스팅 완료 입력 폼 ────────────────────────────
+function openPostForm(rowIndex, newStatus) {
+  const r = _rows.find(x=>x.rowIndex===rowIndex);
+  document.getElementById('sp-title').textContent = '포스팅 완료 정보 입력';
+  document.getElementById('sp-body').innerHTML = `<div style="padding:20px;">
+    <div class="info-box" style="margin-bottom:16px">
+      <strong>${r.nick}</strong> — 포스팅 완료 정보와 상품권 발송 정보를 입력하세요.
+    </div>
+    <div class="fg"><label class="fl">포스팅 URL <span class="req">*</span></label>
+      <input class="fc" id="p-url" value="${r.postUrl||''}" placeholder="https://blog.naver.com/...">
+    </div>
+    <div class="fg"><label class="fl">포스팅 제목</label>
+      <input class="fc" id="p-title" value="${r.postTitle||''}" placeholder="포스팅 제목 입력">
+    </div>
+    <hr class="divider">
+    <div class="sec-title">상품권 발송 정보 (포스팅 확인 후 수집)</div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">실명 (입금자명)</label>
+        <input class="fc" id="p-name" value="${r.realName||''}" placeholder="홍길동">
+      </div>
+      <div class="fg"><label class="fl">연락처</label>
+        <input class="fc" id="p-phone" value="${r.phone||''}" placeholder="010-0000-0000">
+      </div>
+    </div>
+    <div class="fg"><label class="fl">확정금액 (원)</label>
+      <select class="fc" id="p-fee">
+        <option value="">제안금액과 동일 (${feeStr(r.proposeFee)})</option>
+        ${FEES.map(f=>`<option value="${f.replace(/,/g,'')}">${f}원</option>`).join('')}
+      </select>
+    </div>
+    <div class="btn-row">
+      <button class="btn-s" onclick="closePanel()">취소</button>
+      <button class="btn-p" onclick="savePostForm(${rowIndex},'${newStatus}')">저장</button>
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function savePostForm(rowIndex, newStatus) {
+  const postUrl   = document.getElementById('p-url').value.trim();
+  const postTitle = document.getElementById('p-title').value.trim();
+  const realName  = document.getElementById('p-name').value.trim();
+  const phone     = document.getElementById('p-phone').value.trim();
+  const confirmFee= document.getElementById('p-fee').value;
+  if (!postUrl) { toast('포스팅 URL은 필수입니다.','err'); return; }
+  apiPost({ action: 'updateStatus', rowIndex, status: newStatus, extra: {postUrl, postTitle, realName, phone, confirmFee} })
+    .then(() => { closePanel(); toast('포스팅 완료 저장', 'ok'); loadAll(); })
+    .catch(e => toast('오류: ' + e, 'err'));
+}
+
+// ── 신규 등록 폼 ───────────────────────────────────
+function openAddPanel() {
+  _editRow = null;
+  document.getElementById('sp-title').textContent = '인플루언서 등록';
+  document.getElementById('sp-body').innerHTML = buildAddForm(null, '');
+  document.getElementById('overlay').classList.add('open');
+  requestAnimationFrame(() => selectPlat('네이버 블로그'));
+}
+function openAddFromInf(email) {
+  _editRow = null;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-cyc').classList.add('on');
+  document.querySelectorAll('.nav-btn')[2].classList.add('on');
+  const inf = _summary.find(i=>i.email===email)||{};
+  document.getElementById('sp-title').textContent = '협업 추가 — ' + (inf.nick||email);
+  document.getElementById('sp-body').innerHTML = buildAddForm(inf, email);
+  document.getElementById('overlay').classList.add('open');
+  requestAnimationFrame(() => {
+    selectPlat(inf.platform||'네이버 블로그');
+    const emailEl = document.getElementById('f-email');
+    if (emailEl) emailEl.readOnly = true;
+    loadInfPreview(email);
+  });
+}
+
+function buildAddForm(d, prefillEmail) {
+  const em = d ? d.email : (prefillEmail||'');
+  return `<div style="padding:20px;">
+    <div class="fg">
+      <label class="fl">이메일 <span class="req">*</span></label>
+      <input class="fc" id="f-email" value="${em}" placeholder="example@naver.com"
+             oninput="loadInfPreview(this.value)" ${d&&em?'readonly':''}>
+      <div id="dup-area"></div>
+    </div>
+    <div id="inf-prev-box"></div>
+    <div class="fg">
+      <label class="fl">플랫폼 <span class="req">*</span></label>
+      <div class="plat-group">
+        <button type="button" class="plat-btn" id="pb-nv" onclick="selectPlat('네이버 블로그')">네이버 블로그</button>
+        <button type="button" class="plat-btn" id="pb-ts" onclick="selectPlat('티스토리')">티스토리</button>
+      </div>
+      <input type="hidden" id="f-plat" value="${d?d.platform:'네이버 블로그'}">
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">닉네임 <span class="req">*</span></label>
+        <input class="fc" id="f-nick" value="${d?d.nick:''}" placeholder="블로그 닉네임">
+      </div>
+      <div class="fg"><label class="fl">카테고리</label>
+        <select class="fc" id="f-cat">
+          ${CATEGORIES.map(c=>`<option${d&&d.category===c?' selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">방문자수</label>
+        <input class="fc" id="f-vis" value="${d?d.visitors:''}" placeholder="5,000">
+      </div>
+      <div class="fg"><label class="fl">블로그 URL</label>
+        <input class="fc" id="f-url" value="${d?d.blogUrl:''}" placeholder="https://blog.naver.com/...">
+      </div>
+    </div>
+    <div class="fg"><label class="fl">메모 (특이사항, 단가 이력 등)</label>
+      <textarea class="fc" id="f-memo" style="min-height:70px">${d?d.memo:''}</textarea>
+    </div>
+    <hr class="divider">
+    <div class="sec-title">협업 정보 (없으면 공란)</div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">차수</label>
+        <input class="fc" id="f-cycle" value="${_curCycle||''}" placeholder="예: 2025년 7차">
+      </div>
+      <div class="fg"><label class="fl">제안금액 (원)</label>
+        <select class="fc" id="f-fee">
+          <option value="">선택...</option>
+          ${FEES.map(f=>`<option value="${f.replace(/,/g,'')}">${f}원</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">진행상태</label>
+      <select class="fc" id="f-status">
+        ${STATUSES.map(s=>`<option${s==='컨택완료'?' selected':''}>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="btn-row">
+      <button class="btn-s" onclick="closePanel()">취소</button>
+      <button class="btn-p" id="save-btn" onclick="saveNewRow()">저장</button>
+    </div>`;
+}
+
+function loadInfPreview(val) {
+  const area = document.getElementById('dup-area');
+  const box  = document.getElementById('inf-prev-box');
+  if (!area||!box) return;
+  if (!val||!val.includes('@')&&val.length<4) { area.innerHTML=''; box.innerHTML=''; return; }
+  const inf = _summary.find(i=>i.email.toLowerCase()===val.toLowerCase());
+  if (!inf) { area.innerHTML=''; box.innerHTML=''; return; }
+  area.innerHTML = inf.black==='Y'
+    ? `<div class="info-box danger" style="margin-top:6px;font-size:12px">⚠ <strong>${inf.nick}</strong>은 블랙리스트입니다 — ${inf.blackReason||'사유 없음'}</div>`
+    : '';
+  const hist = rowsOf(inf.email);
+  box.innerHTML = `<div class="info-box" style="margin-bottom:14px">
+    <div class="inf-name">${pbadge(inf.platform)}<span>${inf.nick}</span>${inf.black==='Y'?'<span class="badge b-bl">블랙</span>':''}</div>
+    <div class="info-grid">
+      <div><span>카테고리</span>${inf.category||'—'}</div>
+      <div><span>방문자수</span>${inf.visitors||'—'}</div>
+      <div><span>총 협업</span><strong>${inf.collabCount}회</strong></div>
+      <div><span>평균단가</span><strong>${inf.avgFee?inf.avgFee.toLocaleString()+'원':'—'}</strong></div>
+    </div>
+    ${hist.length?`<div style="margin-top:10px;font-size:11px;font-weight:600;color:var(--ink3)">최근 협업</div>
+    ${hist.slice(-3).reverse().map(r=>`<div style="display:flex;gap:8px;align-items:center;margin-top:5px;font-size:11px">
+      ${sbadge(r.status)}<span>${r.cycle}</span><span class="mono">${feeStr(r.proposeFee)}</span>
+    </div>`).join('')}`:''}
+    ${inf.memo?`<div class="memo-box" style="margin-top:8px;font-size:11px">${inf.memo}</div>`:''}
+  </div>`;
+  const nickEl=(document.getElementById('f-nick'));  if(nickEl&&!nickEl.value) nickEl.value=inf.nick;
+  const visEl =(document.getElementById('f-vis'));   if(visEl&&!visEl.value)  visEl.value=inf.visitors||'';
+  const urlEl =(document.getElementById('f-url'));   if(urlEl&&!urlEl.value)  urlEl.value=inf.blogUrl||'';
+  const catEl =(document.getElementById('f-cat'));   if(catEl&&inf.category)  catEl.value=inf.category;
+  const memoEl=(document.getElementById('f-memo')); if(memoEl&&!memoEl.value) memoEl.value=inf.memo||'';
+  selectPlat(inf.platform||'네이버 블로그');
+}
+
+function selectPlat(val) {
+  const platEl = document.getElementById('f-plat');
+  const nvEl   = document.getElementById('pb-nv');
+  const tsEl   = document.getElementById('pb-ts');
+  if (platEl) platEl.value = val;
+  if (nvEl)   nvEl.className = 'plat-btn' + (val === '네이버 블로그' ? ' nv' : '');
+  if (tsEl)   tsEl.className = 'plat-btn' + (val === '티스토리' ? ' ts' : '');
+}
+
+function saveNewRow() {
+  const email = (document.getElementById('f-email')||{}).value?.trim();
+  const nick  = (document.getElementById('f-nick')||{}).value?.trim();
+  if (!email||!nick) { toast('이메일과 닉네임은 필수입니다.','err'); return; }
+  const btn = document.getElementById('save-btn');
+  btn.disabled=true; btn.textContent='저장 중...';
+  const data = {
+    email, nick,
+    platform: document.getElementById('f-plat').value,
+    category: document.getElementById('f-cat').value,
+    visitors: document.getElementById('f-vis').value,
+    blogUrl:  document.getElementById('f-url').value,
+    memo:     document.getElementById('f-memo').value,
+    cycle:    document.getElementById('f-cycle').value,
+    proposeFee: document.getElementById('f-fee').value,
+    status:   document.getElementById('f-status').value,
+    black: 'N', sent: 'N',
+  };
+  const tempRow = {
+    rowIndex: -1, email: data.email, nick: data.nick,
+    platform: data.platform||'네이버 블로그', category: data.category||'',
+    visitors: data.visitors||'', blogUrl: data.blogUrl||'',
+    black: 'N', blackReason: '', memo: data.memo||'',
+    cycle: data.cycle||'', proposeFee: data.proposeFee||'',
+    status: data.status||'컨택완료', guideId:'', guideSent:'', deadline:'',
+    postUrl:'', postTitle:'', realName:'', phone:'',
+    confirmFee:'', sent:'N', sentDate:'', regDate: _today()
+  };
+  _rows.push(tempRow);
+  _summary = _buildSummary(_rows);
+  renderAll(); renderCyc();
+  closePanel();
+  toast('저장 중...', '');
+
+  apiPost({ action: 'addRow', data })
+    .then(res => {
+      btn.disabled=false; btn.textContent='저장';
+      toast((res && res.message) ? res.message : '등록 완료', 'ok');
+      loadAll();
+    })
+    .catch(e => {
+      btn.disabled=false; btn.textContent='저장';
+      _rows = _rows.filter(r => r.rowIndex !== -1);
+      _summary = _buildSummary(_rows);
+      renderAll(); renderCyc();
+      toast('저장 오류: ' + e, 'err');
+    });
+}
+
+// ── 정보 수정 ──────────────────────────────────────
+function openEditInf(email) {
+  const inf = _summary.find(i => i.email === email);
+  if (!inf) { toast('인플루언서 정보를 찾을 수 없습니다.', 'err'); return; }
+  _panelTransitioning = true;
+  setTimeout(() => _panelTransitioning = false, 100);
+  _editRow = null;
+  _currentEditEmail = email;
+  document.getElementById('sp-title').textContent = inf.nick + ' 정보 수정';
+  document.getElementById('sp-body').innerHTML = buildEditInfForm(inf);
+  document.getElementById('overlay').classList.add('open');
+  requestAnimationFrame(() => selectPlat(inf.platform || '네이버 블로그'));
+}
+
+function buildEditInfForm(inf) {
+  return `<div style="padding:20px;">
+    <div class="info-box" style="margin-bottom:14px">
+      <div style="font-size:11px;color:var(--ink3)">이메일(식별자)은 변경할 수 없습니다.</div>
+      <div style="font-size:13px;font-weight:700;margin-top:3px">${inf.email}</div>
+    </div>
+    <div class="fg">
+      <label class="fl">플랫폼</label>
+      <div class="plat-group">
+        <button type="button" class="plat-btn" id="pb-nv" onclick="selectPlat('네이버 블로그')">네이버 블로그</button>
+        <button type="button" class="plat-btn" id="pb-ts" onclick="selectPlat('티스토리')">티스토리</button>
+      </div>
+      <input type="hidden" id="f-plat" value="${inf.platform||'네이버 블로그'}">
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">닉네임</label>
+        <input class="fc" id="f-nick" value="${inf.nick||''}">
+      </div>
+      <div class="fg"><label class="fl">카테고리</label>
+        <select class="fc" id="f-cat">
+          ${CATEGORIES.map(c=>`<option${inf.category===c?' selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">방문자수</label>
+        <input class="fc" id="f-vis" value="${inf.visitors||''}">
+      </div>
+      <div class="fg"><label class="fl">블로그 URL</label>
+        <input class="fc" id="f-url" value="${inf.blogUrl||''}">
+      </div>
+    </div>
+    <div class="fg"><label class="fl">메모</label>
+      <textarea class="fc" id="f-memo" style="min-height:80px">${inf.memo||''}</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn-s" onclick="closePanel()">취소</button>
+      <button class="btn-p" onclick="saveEditInf(_currentEditEmail)">저장</button>
+    </div>`;
+}
+
+function saveEditInf(email) {
+  const data = {
+    nick:     (document.getElementById('f-nick')||{}).value?.trim()||'',
+    platform: (document.getElementById('f-plat')||{}).value||'네이버 블로그',
+    category: (document.getElementById('f-cat')||{}).value||'',
+    visitors: (document.getElementById('f-vis')||{}).value||'',
+    blogUrl:  (document.getElementById('f-url')||{}).value||'',
+    memo:     (document.getElementById('f-memo')||{}).value||'',
+  };
+  const inf = _summary.find(i => i.email === email);
+  if (inf) Object.assign(inf, data);
+  _rows.filter(r => r.email === email).forEach(r => Object.assign(r, data));
+  renderAll(); renderCyc();
+  closePanel();
+  toast('수정 중...', '');
+
+  apiPost({ action: 'updateInfluencer', data: {...data, email} })
+    // Apps Script: updateInfluencer는 email 기준으로 해당 인플루언서의 모든 행 공통 필드(닉네임, 플랫폼 등)를 업데이트
+    .then(() => { toast('수정 완료', 'ok'); loadAll(); })
+    .catch(e => { toast('오류: ' + e, 'err'); loadAll(); });
+}
+
+function openEditRow(rowIndex) {
+  openRowDetail(rowIndex);
+}
+
+function buildEditRowForm(r) {
+  return `
+    <div class="info-box" style="margin-bottom:14px">
+      <div style="font-size:13px;font-weight:700">${r.nick}</div>
+      <div style="font-size:11px;color:var(--ink3);margin-top:2px">${r.email} · ${r.cycle||'차수 없음'}</div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">차수</label>
+        <input class="fc" id="er-cycle" value="${r.cycle||''}">
+      </div>
+      <div class="fg"><label class="fl">제안금액 (원)</label>
+        <select class="fc" id="er-fee">
+          <option value="">—</option>
+          ${FEES.map(f=>`<option value="${f.replace(/,/g,'')}"${r.proposeFee==f.replace(/,/g,'')?' selected':''}>${f}원</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">진행상태</label>
+      <select class="fc" id="er-status">
+        ${STATUSES.map(s=>`<option${r.status===s?' selected':''}>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="fg"><label class="fl">가이드 ID</label>
+      <input class="fc" id="er-guide" value="${r.guideId||''}">
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">가이드 발송일</label>
+        <input class="fc" type="date" id="er-gsent" value="${r.guideSent||''}">
+      </div>
+      <div class="fg"><label class="fl">포스팅 마감일</label>
+        <input class="fc" type="date" id="er-deadline" value="${r.deadline||''}">
+      </div>
+    </div>
+    <hr class="divider">
+    <div class="sec-title">포스팅 / 발송 정보</div>
+    <div class="fg"><label class="fl">포스팅 URL</label>
+      <input class="fc" id="er-purl" value="${r.postUrl||''}" placeholder="https://...">
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">실명 (입금자명)</label>
+        <input class="fc" id="er-name" value="${r.realName||''}" placeholder="홍길동">
+      </div>
+      <div class="fg"><label class="fl">연락처</label>
+        <input class="fc" id="er-phone" value="${r.phone||''}" placeholder="010-0000-0000">
+      </div>
+    </div>
+    <div class="fg"><label class="fl">확정금액 (원)</label>
+      <select class="fc" id="er-cfee">
+        <option value="">—</option>
+        ${FEES.map(f=>`<option value="${f.replace(/,/g,'')}"${r.confirmFee==f.replace(/,/g,'')?' selected':''}>${f}원</option>`).join('')}
+      </select>
+    </div>
+    <div class="btn-row">
+      <button class="btn-s" onclick="closePanel()">취소</button>
+      <button class="btn-p" onclick="saveEditRow(${r.rowIndex})">저장</button>
+    </div>`;
+}
+
+function saveEditRow(rowIndex) {
+  const data = {
+    cycle:      (document.getElementById('er-cycle')||{}).value||'',
+    proposeFee: (document.getElementById('er-fee')||{}).value||'',
+    status:     (document.getElementById('er-status')||{}).value||'',
+    guideId:    (document.getElementById('er-guide')||{}).value||'',
+    guideSent:  (document.getElementById('er-gsent')||{}).value||'',
+    deadline:   (document.getElementById('er-deadline')||{}).value||'',
+    postUrl:    (document.getElementById('er-purl')||{}).value||'',
+    realName:   (document.getElementById('er-name')||{}).value||'',
+    phone:      (document.getElementById('er-phone')||{}).value||'',
+    confirmFee: (document.getElementById('er-cfee')||{}).value||'',
+  };
+  const row = _rows.find(r => r.rowIndex === rowIndex);
+  if (row) Object.assign(row, data);
+  _summary = _buildSummary(_rows);
+  renderCyc(); renderShip(); renderDone(); renderAll();
+  closePanel();
+  toast('수정 중...', '');
+
+  apiPost({ action: 'updateRow', rowIndex, data })
+    .then(() => { toast('수정 완료', 'ok'); loadAll(); })
+    .catch(e => { toast('오류: ' + e, 'err'); loadAll(); });
+}
+
+// ── 렌더: 가이드 목록 ──────────────────────────────
+function renderGuide() {
+  const cnt  = document.getElementById('guide-cnt');
+  const wrap = document.getElementById('guide-cards');
+  const empty= document.getElementById('guide-empty');
+  if (!wrap) return;
+
+  if (cnt) cnt.textContent = `${_guides.length}개`;
+
+  if (!_guides.length) {
+    wrap.style.display  = 'none';
+    if (empty) empty.style.display = '';
+    return;
+  }
+  wrap.style.display  = 'flex';
+  if (empty) empty.style.display = 'none';
+
+  wrap.innerHTML = _guides.map(g => {
+    const users    = _rows.filter(r => r.guideId === g.id);
+    const mains    = g.m1 ? g.m1.split(',').map(k=>k.trim()).filter(Boolean) : [];
+    const subs     = g.m2 ? g.m2.split(',').map(k=>k.trim()).filter(Boolean) : [];
+    const statusCounts = {};
+    users.forEach(r => { statusCounts[r.status] = (statusCounts[r.status]||0)+1; });
+
+    const kwBadges = [
+      ...mains.map(k=>`<span style="display:inline-block;background:var(--purple-l);color:var(--purple);border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;margin:2px 2px 2px 0;">${k}</span>`),
+      ...subs.map(k=>`<span style="display:inline-block;background:var(--paper3);color:var(--ink2);border-radius:4px;padding:2px 8px;font-size:11px;border:1px solid var(--line2);margin:2px 2px 2px 0;">${k}</span>`)
+    ].join('');
+
+    const userRows = users.map(r => `
+      <div onclick="openRowDetail(${r.rowIndex})" style="display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:6px;background:var(--paper2);border:1px solid var(--line);margin-bottom:5px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='var(--blue-l)'" onmouseout="this.style.background='var(--paper2)'">
+        ${pbadge(r.platform||'네이버 블로그')}
+        <strong style="font-size:12px;flex:1;">${r.nick}</strong>
+        ${sbadge(r.status)}
+        <span style="font-size:11px;color:var(--ink3);">${r.cycle||'—'}</span>
+        ${r.deadline?`<span style="font-size:10px;color:var(--amber);">마감 ${r.deadline}</span>`:''}
+      </div>`).join('');
+
+    const statusSummary = Object.entries(statusCounts)
+      .map(([s,c])=>`<span style="font-size:10px;background:var(--paper3);border-radius:3px;padding:1px 6px;margin-right:3px;">${s} ${c}</span>`)
+      .join('');
+
+    return `
+    <div style="background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--sh);">
+      <!-- 카드 헤더 (항상 표시) -->
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;user-select:none;"
+           onclick="toggleGuideCard('gc-${g.id}', this)">
+        <!-- 토글 화살표 -->
+        <span id="gc-arrow-${g.id}" style="font-size:12px;color:var(--ink4);transition:transform .2s;display:inline-block;">▶</span>
+        <!-- 가이드 ID -->
+        <span style="font-size:14px;font-weight:700;color:var(--purple);min-width:60px;">${g.id}</span>
+        <!-- 차수 -->
+        <span style="font-size:11px;color:var(--ink3);min-width:80px;">${g.cycle||'—'}</span>
+        <!-- 키워드 미리보기 -->
+        <div style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--ink2);">
+          ${mains.length ? mains.join(', ') : '<span style="color:var(--ink4);">키워드 없음</span>'}
+          ${subs.length ? `<span style="color:var(--ink4);"> / ${subs.join(', ')}</span>` : ''}
+        </div>
+        <!-- 담당자 수 -->
+        <span style="font-size:11px;font-weight:700;background:${users.length?'var(--blue-l)':'var(--paper3)'};color:${users.length?'var(--blue)':'var(--ink4)'};border-radius:20px;padding:2px 10px;white-space:nowrap;">${users.length}명</span>
+        <!-- 노션 링크 -->
+        ${g.link?`<a href="${g.link}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;font-weight:600;color:var(--blue);white-space:nowrap;padding:4px 10px;border:1px solid var(--blue);border-radius:6px;" onmouseover="this.style.background='var(--blue-l)'" onmouseout="this.style.background=''">노션 →</a>`:''}
+        <!-- 수정 버튼 -->
+        <button class="btn-sm" onclick="event.stopPropagation();openGuideEditPanel('${g.id}')" style="white-space:nowrap;">수정</button>
+      </div>
+
+      <!-- 토글 확장 영역 -->
+      <div id="gc-${g.id}" style="display:none;border-top:1px solid var(--line);">
+        <!-- 키워드 상세 -->
+        <div style="padding:12px 18px;background:var(--paper2);border-bottom:1px solid var(--line);">
+          <div style="font-size:10px;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">키워드</div>
+          <div>${kwBadges || '<span style="color:var(--ink4);font-size:12px;">등록된 키워드 없음</span>'}</div>
+          ${g.m3?`<div style="margin-top:8px;font-size:11px;color:var(--ink3);background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:7px 10px;">${g.m3}</div>`:''}
+        </div>
+
+        <!-- 담당 블로거 목록 -->
+        <div style="padding:12px 18px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <span style="font-size:10px;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:.5px;">담당 블로거 (${users.length}명)</span>
+            ${statusSummary}
+          </div>
+          ${users.length ? userRows : '<div style="color:var(--ink4);font-size:12px;padding:8px 0;">담당 블로거가 없습니다.</div>'}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleGuideCard(id, headerEl) {
+  const panel = document.getElementById(id);
+  const gId   = id.replace('gc-', '');
+  const arrow = document.getElementById('gc-arrow-' + gId);
+  if (!panel) return;
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : '';
+  if (arrow) arrow.style.transform = isOpen ? '' : 'rotate(90deg)';
+}
+
+function openGuideDetail(id) {
+  // 가이드 탭에서는 인라인 토글로 대체되었으나, 다른 탭에서 호출될 때를 위한 패널 뷰 유지
+  const g = _guides.find(x => x.id === id);
+  if (!g) return;
+  const users = _rows.filter(r => r.guideId === id);
+  const mains = g.m1 ? g.m1.split(',').map(k=>k.trim()).filter(Boolean) : [];
+  const subs  = g.m2 ? g.m2.split(',').map(k=>k.trim()).filter(Boolean) : [];
+  document.getElementById('sp-title').textContent = `가이드 ${id}`;
+  document.getElementById('sp-body').innerHTML = `
+    <div style="padding:16px 20px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <span style="font-size:18px;font-weight:700;color:var(--purple);">${g.id}</span>
+        <span style="font-size:12px;color:var(--ink3);">${g.cycle||''}</span>
+        ${g.link?`<a href="${g.link}" target="_blank" class="btn-p" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:5px 12px;text-decoration:none;margin-left:auto;">노션 열기 →</a>`:''}
+      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">메인 키워드</div>
+      <div style="margin-bottom:12px;">${mains.map(k=>`<span style="display:inline-block;background:var(--purple-l);color:var(--purple);border-radius:4px;padding:3px 8px;font-size:11px;font-weight:600;margin:2px 2px 2px 0;">${k}</span>`).join('')||'—'}</div>
+      <div style="font-size:10px;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">서브 키워드</div>
+      <div style="margin-bottom:14px;">${subs.map(k=>`<span style="display:inline-block;background:var(--paper3);color:var(--ink2);border-radius:4px;padding:3px 8px;font-size:11px;border:1px solid var(--line2);margin:2px 2px 2px 0;">${k}</span>`).join('')||'—'}</div>
+      ${g.m3?`<div style="font-size:12px;color:var(--ink2);background:var(--paper2);border:1px solid var(--line);border-radius:7px;padding:10px 12px;margin-bottom:14px;">${g.m3}</div>`:''}
+      <hr class="divider">
+      <div style="font-size:10px;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">담당 블로거 (${users.length}명)</div>
+      ${users.length ? users.map(r=>`
+        <div onclick="openRowDetail(${r.rowIndex})" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;background:var(--paper2);border:1px solid var(--line);margin-bottom:5px;cursor:pointer;" onmouseover="this.style.background='var(--blue-l)'" onmouseout="this.style.background='var(--paper2)'">
+          ${pbadge(r.platform||'네이버 블로그')}
+          <strong style="font-size:12px;flex:1;">${r.nick}</strong>
+          ${sbadge(r.status)}
+          <span style="font-size:11px;color:var(--ink3);">${r.cycle}</span>
+          ${r.deadline?`<span style="font-size:10px;color:var(--amber);">마감 ${r.deadline}</span>`:''}
+        </div>`).join('')
+      : '<div style="color:var(--ink4);font-size:12px;padding:8px 0;">담당 블로거가 없습니다.</div>'}
+      <div class="btn-row" style="margin-top:16px;">
+        <button class="btn-s" onclick="closePanel()">닫기</button>
+        <button class="btn-p" onclick="closePanel();setTimeout(()=>openGuideEditPanel('${id}'),50)">수정</button>
+      </div>
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+
+function openGuideAddPanel() {
+  document.getElementById('sp-title').textContent = '가이드 등록';
+  document.getElementById('sp-body').innerHTML = buildGuideForm(null);
+  document.getElementById('overlay').classList.add('open');
+}
+
+function openGuideEditPanel(id) {
+  const g = _guides.find(x => x.id === id);
+  document.getElementById('sp-title').textContent = `가이드 ${id} 수정`;
+  document.getElementById('sp-body').innerHTML = buildGuideForm(g);
+  document.getElementById('overlay').classList.add('open');
+}
+
+function buildGuideForm(g) {
+  return `<div style="padding:20px;">
+    <div class="fg"><label class="fl">차수</label>
+      <input class="fc" id="gf-cycle" value="${g?g.cycle:_curCycle||''}" placeholder="예: 2025년 7차">
+    </div>
+    <div class="fg"><label class="fl">노션 링크</label>
+      <input class="fc" id="gf-link" value="${g?g.link||'':''}" placeholder="https://notion.so/...">
+    </div>
+    <div class="fg"><label class="fl">메인 키워드 <span class="req">*</span></label>
+      <input class="fc" id="gf-m1" value="${g?g.m1||'':''}" placeholder="예: 경리나라 무료체험">
+    </div>
+    <div class="fg"><label class="fl">서브 키워드</label>
+      <input class="fc" id="gf-m2" value="${g?g.m2||'':''}" placeholder="예: 경리회계프로그램, 경리나라 가격">
+    </div>
+    <div class="fg"><label class="fl">기타 메모</label>
+      <textarea class="fc" id="gf-m3" style="min-height:60px">${g?g.m3||'':''}</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn-s" onclick="closePanel()">취소</button>
+      <button class="btn-p" id="gf-save" onclick="saveGuide('${g?g.id:''}')">저장</button>
+    </div>`;
+}
+
+function saveGuide(existingId) {
+  const m1 = (document.getElementById('gf-m1')||{}).value?.trim();
+  if (!m1) { toast('메인 키워드는 필수입니다.','err'); return; }
+  const btn = document.getElementById('gf-save');
+  btn.disabled=true; btn.textContent='저장 중...';
+  const data = {
+    cycle: document.getElementById('gf-cycle').value||'',
+    link:  document.getElementById('gf-link').value||'',
+    m1,
+    m2: document.getElementById('gf-m2').value||'',
+    m3: document.getElementById('gf-m3').value||'',
+    memo: ''
+  };
+  // 기존 가이드 수정 시 updateGuide, 신규 등록 시 addGuide
+  const action = existingId ? 'updateGuide' : 'addGuide';
+  if (existingId) data.id = existingId;
+  apiPost({ action, data })
+    .then(res => {
+      btn.disabled=false; btn.textContent='저장';
+      closePanel();
+      toast((res&&res.message)||(existingId?'가이드 수정 완료':'가이드 등록 완료'), 'ok');
+      loadAll();
+    })
+    .catch(e => {
+      btn.disabled=false; btn.textContent='저장';
+      toast('오류: ' + e, 'err');
+    });
+}
+
+// ── CSV 내보내기 ───────────────────────────────────
+function exportShipCSV() {
+  const sc  = document.getElementById('ship-sel')?.value||'all';
+  const rows = _rows.filter(r => {
+    if (r.sent!=='N') return false;
+    if (!['포스팅완료','발송대기'].includes(r.status)) return false;
+    if (sc!=='all' && r.cycle!==sc) return false;
+    return true;
+  });
+  if (!rows.length) { toast('내보낼 데이터가 없습니다.','err'); return; }
+  const header = ['번호','차수','플랫폼','닉네임','이메일','실명','연락처','확정금액(원)','제안금액(원)','포스팅URL','진행상태'];
+  const lines  = [header.join(',')];
+  rows.forEach((r, i) => {
+    const confirmFee = Number((r.confirmFee||r.proposeFee||'0').toString().replace(/[^0-9]/g,''));
+    const proposeFee = Number((r.proposeFee||'0').toString().replace(/[^0-9]/g,''));
+    const phone = r.phone ? `="${r.phone}"` : '';
+    lines.push([
+      i+1,
+      `"${r.cycle||''}"`,
+      `"${r.platform||'네이버 블로그'}"`,
+      `"${r.nick||''}"`,
+      `"${r.email||''}"`,
+      `"${r.realName||''}"`,
+      phone,
+      confirmFee||'',
+      proposeFee||'',
+      `"${r.postUrl||''}"`,
+      `"${r.status||''}"`,
+    ].join(','));
+  });
+  const blob = new Blob(['\uFEFF'+lines.join('\n')], {type:'text/csv;charset=utf-8'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download=`발송요청서_${sc==='all'?'전체':sc}_${_today()}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('발송요청서 다운로드 완료','ok');
+}
+
+// ── 발송요청서 엑셀 내보내기 ──────────────────────
+async function exportShipExcel() {
+  if (typeof XLSX === 'undefined') { toast('SheetJS 로드 중... 잠시 후 다시 시도해주세요.', 'err'); return; }
+  const sc = document.getElementById('ship-sel')?.value || 'all';
+  const rows = _rows.filter(r => {
+    if (r.sent !== 'N') return false;
+    if (!['포스팅완료','발송대기'].includes(r.status)) return false;
+    if (sc !== 'all' && r.cycle !== sc) return false;
+    return true;
+  });
+  if (!rows.length) { toast('내보낼 데이터가 없습니다.', 'err'); return; }
+
+  // Apps Script에 전달할 데이터 구성
+  const shipData = rows.map(r => ({
+    phone: (r.phone || '').replace(/[^0-9]/g,''),
+    fee: Number((r.confirmFee || r.proposeFee || '0').toString().replace(/[^0-9]/g,''))
+  }));
+
+  toast('발송요청서 생성 중...', '');
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'createShipExcel', rows: shipData })
+    });
+    const json = await res.json();
+    if (!json.success) { toast('오류: ' + json.message, 'err'); return; }
+    // 다운로드 링크 열기
+    window.open(json.url, '_blank');
+    toast('발송요청서 다운로드 완료', 'ok');
+  } catch(e) {
+    toast('생성 실패: ' + e.message, 'err');
+  }
+}
+
+
+// ── 오버레이 ───────────────────────────────────────
+function closeIfOut(e) {
+  if (_panelTransitioning) return;
+  if (!document.getElementById('sp').contains(e.target)) closePanel();
+}
+function closePanel() { document.getElementById('overlay').classList.remove('open'); }
+
+// ── 토스트 ─────────────────────────────────────────
+function toast(msg, type='') {
+  const c = document.getElementById('tc');
+  const t = document.createElement('div');
+  t.className=`toast ${type}`; t.textContent=msg;
+  c.appendChild(t); setTimeout(()=>t.remove(),3000);
+}
+
+// ── 유틸 ───────────────────────────────────────────
+function _today() {
+  const d=new Date(); return d.toISOString().split('T')[0];
+}
+</script>
+</body>
+</html>
